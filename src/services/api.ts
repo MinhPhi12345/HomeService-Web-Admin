@@ -19,9 +19,19 @@ apiClient.interceptors.response.use(
       if (error.response.status === 401) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('adminUser');
+        sessionStorage.setItem('auth_message', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
+      } else if (error.response.status === 403) {
+        window.dispatchEvent(
+          new CustomEvent('app:toast', {
+            detail: {
+              type: 'error',
+              message: 'Bạn không có quyền thực hiện thao tác này.',
+            },
+          }),
+        );
       }
     }
     return Promise.reject(error);
