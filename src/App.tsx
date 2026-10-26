@@ -15,6 +15,7 @@ const DisputesPage = lazy(() => import('./pages/DisputesPage'));
 const FlaggedReviewsPage = lazy(() => import('./pages/FlaggedReviewsPage'));
 const RevenueReportPage = lazy(() => import('./pages/RevenueReportPage'));
 const AuditLogsPage = lazy(() => import('./pages/AuditLogsPage'));
+const ReportsCenterPage = lazy(() => import('./pages/reports/ReportsCenterPage'));
 const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -40,6 +41,8 @@ function App() {
             <Route path="/flagged-reviews" element={<FlaggedReviewsPage />} />
             <Route path="/revenue-report" element={<RevenueReportPage />} />
             <Route path="/audit-logs" element={<AuditLogsPage />} />
+            <Route path="/reports" element={<ReportsCenterPage />} />
+            <Route path="/reports/*" element={<ReportsCenterPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

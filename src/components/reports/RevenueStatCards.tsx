@@ -10,6 +10,8 @@ import {
 import type { RevenueReport } from '../../types';
 import { formatVnd } from '../../utils/formatters';
 
+const NO_DATA = 'Chưa có dữ liệu';
+
 interface RevenueStatCardsProps {
   report: RevenueReport;
 }
@@ -36,25 +38,25 @@ export default function RevenueStatCards({ report }: RevenueStatCardsProps) {
     },
     {
       title: 'Đã trả cho Tasker',
-      value: formatVnd(report.paidToTasker ?? 31200000),
+      value: report.paidToTasker !== undefined ? formatVnd(report.paidToTasker) : NO_DATA,
       icon: <Banknote size={20} />,
       variant: 'success',
     },
     {
       title: 'Thu online',
-      value: formatVnd(report.onlineRevenue ?? 97250000),
+      value: report.onlineRevenue !== undefined ? formatVnd(report.onlineRevenue) : NO_DATA,
       icon: <CreditCard size={20} />,
       variant: 'sky',
     },
     {
       title: 'Đang tạm giữ (Chờ hoàn thành)',
-      value: formatVnd(report.holdingAmount ?? 18900000),
+      value: report.holdingAmount !== undefined ? formatVnd(report.holdingAmount) : NO_DATA,
       icon: <Hourglass size={20} />,
       variant: 'lilac',
     },
     {
       title: 'Đã hoàn cho khách',
-      value: formatVnd(report.refundedToCustomer ?? 4320000),
+      value: report.refundedToCustomer !== undefined ? formatVnd(report.refundedToCustomer) : NO_DATA,
       icon: <RotateCcw size={20} />,
       variant: 'rose',
     },

@@ -1,17 +1,17 @@
 interface OrderStatusProgressListProps {
-  completed?: number;
-  inProgress?: number;
-  findingTasker?: number;
-  disputed?: number;
-  cancelled?: number;
+  completed: number;
+  inProgress: number;
+  findingTasker: number;
+  disputed: number;
+  cancelled: number;
 }
 
 export default function OrderStatusProgressList({
-  completed = 342,
-  inProgress = 24,
-  findingTasker = 12,
-  disputed = 5,
-  cancelled = 26,
+  completed,
+  inProgress,
+  findingTasker,
+  disputed,
+  cancelled,
 }: OrderStatusProgressListProps) {
   const total = completed + inProgress + findingTasker + disputed + cancelled;
 

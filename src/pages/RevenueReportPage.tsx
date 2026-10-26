@@ -10,6 +10,8 @@ import BookingsStatusSummaryTable from '../components/reports/BookingsStatusSumm
 import TableSkeleton from '../components/common/TableSkeleton';
 import ErrorState from '../components/common/ErrorState';
 
+const NO_DATA = 'Chưa có dữ liệu';
+
 export default function RevenueReportPage() {
   const toast = useToast();
   const [fromDate, setFromDate] = useState('2026-10-01');
@@ -65,10 +67,26 @@ export default function RevenueReportPage() {
         { label: 'Tổng doanh thu', value: report.totalRevenue, format: 'currency' },
         { label: 'Hoa hồng nền tảng', value: report.totalCommission, format: 'currency' },
         { label: 'Số giao dịch', value: report.transactionCount, format: 'number' },
-        { label: 'Đang tạm giữ', value: report.holdingAmount ?? 18900000, format: 'currency' },
-        { label: 'Đã trả cho Tasker', value: report.paidToTasker ?? 31200000, format: 'currency' },
-        { label: 'Thu online', value: report.onlineRevenue ?? 97250000, format: 'currency' },
-        { label: 'Đã hoàn cho khách', value: report.refundedToCustomer ?? 4320000, format: 'currency' },
+        {
+          label: 'Đang tạm giữ',
+          value: report.holdingAmount ?? NO_DATA,
+          format: typeof report.holdingAmount === 'number' ? 'currency' : 'text',
+        },
+        {
+          label: 'Đã trả cho Tasker',
+          value: report.paidToTasker ?? NO_DATA,
+          format: typeof report.paidToTasker === 'number' ? 'currency' : 'text',
+        },
+        {
+          label: 'Thu online',
+          value: report.onlineRevenue ?? NO_DATA,
+          format: typeof report.onlineRevenue === 'number' ? 'currency' : 'text',
+        },
+        {
+          label: 'Đã hoàn cho khách',
+          value: report.refundedToCustomer ?? NO_DATA,
+          format: typeof report.refundedToCustomer === 'number' ? 'currency' : 'text',
+        },
       ];
 
       await exportToExcel({

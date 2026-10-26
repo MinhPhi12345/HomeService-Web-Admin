@@ -7,4 +7,5 @@ export const ROUTES = {
   FLAGGED_REVIEWS: '/flagged-reviews',
   LOGIN: '/login',
   FORBIDDEN: '/403',
+  REPORTS: '/reports',
 } as const;

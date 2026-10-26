@@ -2,20 +2,25 @@ import { CheckCircle2, DollarSign, Hourglass, Percent } from 'lucide-react';
 import type { RevenueReport } from '../../types';
 import { formatVnd } from '../../utils/formatters';
 
+const NO_DATA = 'Chưa có dữ liệu';
+
 interface StatCardsProps {
   report: RevenueReport | null;
-  completedCount?: number;
-  cancelledCount?: number;
+  completedCount: number;
+  cancelledCount: number;
 }
 
 export default function StatCards({
   report,
-  completedCount = 342,
-  cancelledCount = 26,
+  completedCount,
+  cancelledCount,
 }: StatCardsProps) {
-  const totalRevenue = report ? formatVnd(report.totalRevenue) : '128.450.000 đ';
-  const totalCommission = report ? formatVnd(report.totalCommission) : '25.690.000 đ';
-  const holdingAmount = report?.holdingAmount ? formatVnd(report.holdingAmount) : '18.900.000 đ';
+  const totalRevenue = report ? formatVnd(report.totalRevenue) : NO_DATA;
+  const totalCommission = report ? formatVnd(report.totalCommission) : NO_DATA;
+  const holdingAmount =
+    report?.holdingAmount !== undefined
+      ? formatVnd(report.holdingAmount)
+      : NO_DATA;
 
   return (
     <div className="stats-grid">

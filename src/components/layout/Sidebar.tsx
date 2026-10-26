@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   AlertTriangle,
   BarChart3,
+  PieChart,
   ClipboardList,
   Flame,
   Layers,
@@ -33,6 +34,7 @@ const navItems: NavItemDef[] = [
   { to: '/flagged-reviews', label: 'Đánh giá báo cáo', icon: <Flame size={18} />, badge: 2 },
   { to: '/revenue-report', label: 'Báo cáo doanh thu', icon: <BarChart3 size={18} /> },
   { to: '/audit-logs', label: 'Nhật ký kiểm toán', icon: <ClipboardList size={18} /> },
+  { to: '/reports', label: 'Trung tâm báo cáo', icon: <PieChart size={18} /> },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {

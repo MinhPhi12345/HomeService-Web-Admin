@@ -22,11 +22,11 @@ export default function DashboardPage() {
       .reduce((acc, curr) => acc + curr.count, 0);
   };
 
-  const completedCount = getStatusCount(['Paid', 'Completed']) || 342;
-  const inProgressCount = getStatusCount(['InProgress']) || 24;
-  const findingTaskerCount = getStatusCount(['Pending', 'Matched']) || 12;
-  const disputedCount = getStatusCount(['Disputed']) || 5;
-  const cancelledCount = getStatusCount(['Cancelled', 'Rejected']) || 26;
+  const completedCount = getStatusCount(['Paid', 'Completed']);
+  const inProgressCount = getStatusCount(['InProgress']);
+  const findingTaskerCount = getStatusCount(['Pending', 'Matched']);
+  const disputedCount = getStatusCount(['Disputed']);
+  const cancelledCount = getStatusCount(['Cancelled', 'Rejected']);
 
   if (error && !isLoading) {
     return <ErrorState message={error} onRetry={onRetry} className="dashboard-error" />;
