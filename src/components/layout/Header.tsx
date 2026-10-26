@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, User } from 'lucide-react';
+import { Bell, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
-import { USER_ROLE_LABELS } from '../../utils/constants';
 import { logoutApi } from '../../services/authService';
 import ConfirmDialog from '../common/ConfirmDialog';
 
@@ -10,14 +9,48 @@ interface HeaderProps {
   onToggleSidebar: () => void;
 }
 
-const pageTitles: Record<string, string> = {
-  '/': 'Tổng quan',
-  '/services': 'Danh mục dịch vụ',
-  '/users': 'Người dùng',
-  '/tasker-verification': 'Duyệt Tasker',
-  '/disputes': 'Khiếu nại',
-  '/flagged-reviews': 'Đánh giá bị báo cáo',
-  '/403': 'Lỗi quyền truy cập',
+interface PageMeta {
+  title: string;
+  subtitle: string;
+}
+
+const pageMetaMap: Record<string, PageMeta> = {
+  '/': {
+    title: 'Dashboard',
+    subtitle: 'Tháng 10/2026 - Dữ liệu minh họa',
+  },
+  '/services': {
+    title: 'Dịch vụ & bảng giá',
+    subtitle: 'Thêm, sửa, xóa nhìn danh mục - giá mới chỉ áp dụng cho đơn tạo sau',
+  },
+  '/users': {
+    title: 'Người dùng',
+    subtitle: 'Khóa / mở khóa tài khoản vi phạm',
+  },
+  '/tasker-verification': {
+    title: 'Duyệt hồ sơ Tasker',
+    subtitle: '5 hồ sơ đang chờ xét duyệt',
+  },
+  '/disputes': {
+    title: 'Khiếu nại',
+    subtitle: 'Danh sách khiếu nại đang chờ xử lý',
+  },
+  '/flagged-reviews': {
+    title: 'Đánh giá bị báo cáo',
+    subtitle: '2 đánh giá chờ xử lý',
+  },
+  '/revenue-report': {
+    title: 'Báo cáo doanh thu',
+    subtitle: 'Doanh thu, hoa hồng, tiền tạm giữ và hoàn tiền theo khoảng ngày',
+  },
+  '/audit-logs': {
+    title: 'Nhật ký kiểm toán',
+    subtitle: 'Lịch sử thao tác quản trị và thay đổi hệ thống',
+  },
+  '/403': {
+    title: 'Lỗi quyền truy cập',
+    subtitle: 'Bạn không có quyền thực hiện thao tác này',
+  },
 };
 
 export default function Header({ onToggleSidebar }: HeaderProps) {
@@ -27,8 +60,12 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const currentTitle = pageTitles[location.pathname] ?? 'Hệ thống quản trị';
-  const roleLabel = user ? USER_ROLE_LABELS[user.role] : '';
+  const meta = pageMetaMap[location.pathname] ?? {
+    title: 'Hệ thống quản trị',
+    subtitle: 'HomeService Admin Portal',
+  };
+
+  const initialLetter = user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'A';
 
   async function handleConfirmLogout() {
     setIsLoggingOut(true);
@@ -55,31 +92,33 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
           >
             <Menu size={20} />
           </button>
-          <h1 className="header-page-title">{currentTitle}</h1>
+          <div className="header-title-group">
+            <h1 className="header-page-title">{meta.title}</h1>
+            <p className="header-page-subtitle">{meta.subtitle}</p>
+          </div>
         </div>
 
         <div className="header-right">
-          {user && (
-            <div className="header-user-info">
-              <div className="header-user-avatar">
-                <User size={16} />
-              </div>
-              <div className="header-user-details">
-                <span className="header-user-name">{user.fullName}</span>
-                <span className="header-user-role">{roleLabel}</span>
-              </div>
-            </div>
-          )}
-
           <button
             type="button"
-            className="header-logout-btn"
+            className="header-icon-btn"
+            title="Thông báo"
+            aria-label="Thông báo"
+          >
+            <Bell size={18} />
+          </button>
+
+          <div
+            className="header-user-badge"
             onClick={() => setIsConfirmOpen(true)}
+            role="button"
+            tabIndex={0}
             title="Đăng xuất"
           >
-            <LogOut size={16} />
-            <span className="logout-btn-text">Đăng xuất</span>
-          </button>
+            <div className="header-avatar-circle">{initialLetter}</div>
+            <span className="header-role-text">Admin</span>
+            <LogOut size={14} className="header-logout-icon" />
+          </div>
         </div>
       </header>
 

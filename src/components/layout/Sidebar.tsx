@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import {
   AlertTriangle,
-  Flag,
+  BarChart3,
+  ClipboardList,
+  Flame,
   Layers,
   LayoutDashboard,
   ShieldCheck,
@@ -15,21 +17,22 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navItems = [
-  { to: '/', label: 'Tổng quan', icon: <LayoutDashboard size={20} /> },
-  { to: '/services', label: 'Danh mục dịch vụ', icon: <Layers size={20} /> },
-  { to: '/users', label: 'Người dùng', icon: <Users size={20} /> },
-  {
-    to: '/tasker-verification',
-    label: 'Duyệt Tasker',
-    icon: <UserCheck size={20} />,
-  },
-  { to: '/disputes', label: 'Khiếu nại', icon: <AlertTriangle size={20} /> },
-  {
-    to: '/flagged-reviews',
-    label: 'Đánh giá bị báo cáo',
-    icon: <Flag size={20} />,
-  },
+interface NavItemDef {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+  badge?: number;
+}
+
+const navItems: NavItemDef[] = [
+  { to: '/', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+  { to: '/services', label: 'Dịch vụ & bảng giá', icon: <Layers size={18} /> },
+  { to: '/users', label: 'Người dùng', icon: <Users size={18} /> },
+  { to: '/tasker-verification', label: 'Duyệt Tasker', icon: <UserCheck size={18} />, badge: 5 },
+  { to: '/disputes', label: 'Khiếu nại', icon: <AlertTriangle size={18} />, badge: 2 },
+  { to: '/flagged-reviews', label: 'Đánh giá báo cáo', icon: <Flame size={18} />, badge: 2 },
+  { to: '/revenue-report', label: 'Báo cáo doanh thu', icon: <BarChart3 size={18} /> },
+  { to: '/audit-logs', label: 'Nhật ký kiểm toán', icon: <ClipboardList size={18} /> },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -48,7 +51,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
             <div className="sidebar-brand-text">
               <span className="sidebar-brand-title">HomeService</span>
-              <span className="sidebar-brand-subtitle">Admin</span>
+              <span className="sidebar-brand-subtitle">Quản trị viên</span>
             </div>
           </div>
           <button
@@ -74,6 +77,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <span className="sidebar-nav-icon">{item.icon}</span>
               <span className="sidebar-nav-label">{item.label}</span>
+              {typeof item.badge === 'number' && item.badge > 0 && (
+                <span className="sidebar-nav-badge">{item.badge}</span>
+              )}
             </NavLink>
           ))}
         </nav>

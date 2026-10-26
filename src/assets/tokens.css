@@ -1,34 +1,93 @@
 :root {
-  --color-primary: #0d9488;
-  --color-primary-dark: #0f766e;
-  --color-primary-light: #e6f7f5;
+  /* Brand Primary */
+  --primary-500: #14B8A6;
+  --primary-600: #0F9B8E;
+  --primary-100: #D9F5F1;
+  --primary-50: #EEFBF9;
 
-  --color-accent-amber: #f59e0b;
-  --color-accent-amber-light: #fef3c7;
+  /* Brand Accent */
+  --accent-500: #FFB938;
+  --accent-100: #FFF1D6;
 
-  --color-danger: #ef4444;
-  --color-danger-light: #fee2e2;
+  /* Neutral Ink */
+  --ink-900: #0F2A33;
+  --ink-600: #4B6670;
+  --ink-400: #8CA0A8;
+  --ink-200: #D9E3E6;
 
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
+  /* Backgrounds */
+  --bg-cream: #FFFBF5;
+  --bg-white: #FFFFFF;
 
-  --color-app-bg: #faf8f5;
-  --color-surface: #ffffff;
-  --color-sidebar: #ffffff;
-  --color-border: #e2e8f0;
+  /* Semantic */
+  --success: #22A06B;
+  --danger: #F5605D;
+  --info: #4C8DF6;
 
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-disabled: #94a3b8;
-  --color-disabled-bg: #f1f5f9;
+  /* Pastel Palette for Badges & Accents */
+  --pastel-rose: #FFE3E6;
+  --pastel-sky: #DDEEFF;
+  --pastel-lilac: #EADFFF;
+  --pastel-mint: #DCF7E8;
+  --pastel-peach: #FFE8D6;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --pastel-rose-text: #D63939;
+  --pastel-sky-text: #1D6AE5;
+  --pastel-mint-text: #167E53;
+  --pastel-lilac-text: #5B3BA2;
+  --pastel-peach-text: #964817;
+  --pastel-amber-text: #8A5B00;
+
+  /* Semantic Aliases */
+  --color-primary: var(--primary-500);
+  --color-primary-dark: var(--primary-600);
+  --color-primary-light: var(--primary-100);
+  --color-primary-subtle: var(--primary-50);
+
+  --color-accent-amber: var(--accent-500);
+  --color-accent-amber-light: var(--accent-100);
+
+  --color-danger: var(--danger);
+  --color-danger-light: var(--pastel-rose);
+
+  --color-success: var(--success);
+  --color-success-light: var(--pastel-mint);
+
+  --color-info: var(--info);
+  --color-info-light: var(--pastel-sky);
+
+  --color-app-bg: var(--bg-cream);
+  --color-surface: var(--bg-white);
+  --color-surface-hover: #FAF7F0;
+  --color-sidebar: var(--bg-white);
+  --color-border: var(--ink-200);
+  --color-muted-bg: #F5F7F8;
+
+  --color-text-primary: var(--ink-900);
+  --color-text-secondary: var(--ink-600);
+  --color-disabled: var(--ink-400);
+  --color-disabled-bg: #F1F4F5;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-size-display: 32px;
+  --font-size-h1: 24px;
+  --font-size-h2: 20px;
+  --font-size-h3: 16px;
+  --font-size-body: 14px;
+  --font-size-caption: 12px;
+  --font-size-button: 16px;
+
+  /* Border Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
 
-  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-modal: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Shadows */
+  --shadow-subtle: 0 2px 8px rgba(15, 42, 51, 0.04), 0 1px 2px rgba(15, 42, 51, 0.02);
+  --shadow-card: 0 4px 14px rgba(15, 42, 51, 0.05);
+  --shadow-modal: 0 16px 36px -6px rgba(15, 42, 51, 0.12);
 }

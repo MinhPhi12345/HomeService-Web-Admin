@@ -1,40 +1,62 @@
-import { useEffect, useState } from "react";
-import { getRevenueReport } from "../services/reportService";
-import type { RevenueReport } from "../types";
+import StatCards from '../components/dashboard/StatCards';
+import DailyRevenueBarChart from '../components/dashboard/DailyRevenueBarChart';
+import OrderStatusProgressList from '../components/dashboard/OrderStatusProgressList';
+import TaskerPerformanceTable from '../components/dashboard/TaskerPerformanceTable';
+import ErrorState from '../components/common/ErrorState';
+import TableSkeleton from '../components/common/TableSkeleton';
+import { useDashboardData } from '../hooks/useDashboardData';
 
-// US31 - Báo cáo doanh thu (trang tổng quan)
 export default function DashboardPage() {
-  const [report, setReport] = useState<RevenueReport | null>(null);
+  const {
+    revenueReport,
+    bookingsSummary,
+    taskerPerformance,
+    isLoading,
+    error,
+    onRetry,
+  } = useDashboardData();
 
-  useEffect(() => {
-    const to = new Date();
-    const from = new Date();
-    from.setDate(from.getDate() - 30);
-    getRevenueReport(from.toISOString(), to.toISOString())
-      .then(setReport)
-      .catch(() => setReport(null));
-  }, []);
+  const getStatusCount = (statuses: string[]) => {
+    return bookingsSummary
+      .filter((b) => statuses.includes(b.status))
+      .reduce((acc, curr) => acc + curr.count, 0);
+  };
+
+  const completedCount = getStatusCount(['Paid', 'Completed']) || 342;
+  const inProgressCount = getStatusCount(['InProgress']) || 24;
+  const findingTaskerCount = getStatusCount(['Pending', 'Matched']) || 12;
+  const disputedCount = getStatusCount(['Disputed']) || 5;
+  const cancelledCount = getStatusCount(['Cancelled', 'Rejected']) || 26;
+
+  if (error && !isLoading) {
+    return <ErrorState message={error} onRetry={onRetry} className="dashboard-error" />;
+  }
 
   return (
-    <div>
-      <h1>Tổng quan (30 ngày gần nhất)</h1>
-      {report ? (
-        <div style={{ display: "flex", gap: 24 }}>
-          <div>
-            <h3>Doanh thu</h3>
-            <p>{report.totalRevenue.toLocaleString("vi-VN")}đ</p>
-          </div>
-          <div>
-            <h3>Hoa hồng nền tảng</h3>
-            <p>{report.totalCommission.toLocaleString("vi-VN")}đ</p>
-          </div>
-          <div>
-            <h3>Số giao dịch</h3>
-            <p>{report.transactionCount}</p>
-          </div>
-        </div>
+    <div className="dashboard-page">
+      {isLoading && !revenueReport ? (
+        <TableSkeleton rows={4} columns={4} />
       ) : (
-        <p>Chưa có dữ liệu (backend chưa có giao dịch nào trong khoảng thời gian này).</p>
+        <div className="dashboard-content">
+          <StatCards
+            report={revenueReport}
+            completedCount={completedCount}
+            cancelledCount={cancelledCount}
+          />
+
+          <div className="dashboard-middle-grid">
+            <DailyRevenueBarChart data={revenueReport?.dailyData ?? []} />
+            <OrderStatusProgressList
+              completed={completedCount}
+              inProgress={inProgressCount}
+              findingTasker={findingTaskerCount}
+              disputed={disputedCount}
+              cancelled={cancelledCount}
+            />
+          </div>
+
+          <TaskerPerformanceTable data={taskerPerformance} />
+        </div>
       )}
     </div>
   );

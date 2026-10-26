@@ -26,11 +26,7 @@ export default function LoginPage() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  if (
-    user &&
-    user.role === UserRole.Admin &&
-    (!user.expiresAt || new Date(user.expiresAt) > new Date())
-  ) {
+  if (user && user.role === UserRole.Admin && (!user.expiresAt || new Date(user.expiresAt) > new Date())) {
     return <Navigate to="/" replace />;
   }
 
@@ -38,7 +34,6 @@ export default function LoginPage() {
     let isValid = true;
     setEmailError(null);
     setPasswordError(null);
-
     const cleanEmail = email.trim();
     if (!cleanEmail) {
       setEmailError('Vui lòng nhập email.');
@@ -47,23 +42,17 @@ export default function LoginPage() {
       setEmailError('Email không đúng định dạng.');
       isValid = false;
     }
-
     if (!password) {
       setPasswordError('Vui lòng nhập mật khẩu.');
       isValid = false;
     }
-
     return isValid;
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-
-    if (!validate()) {
-      return;
-    }
-
+    if (!validate()) return;
     setIsLoading(true);
     try {
       const res = await login({ email: email.trim(), password });
@@ -142,9 +131,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
               />
             </div>
-            {passwordError && (
-              <span className="form-error">{passwordError}</span>
-            )}
+            {passwordError && <span className="form-error">{passwordError}</span>}
           </div>
 
           <Button

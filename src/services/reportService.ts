@@ -6,9 +6,9 @@ import type {
 } from '../types';
 import {
   delayMock,
+  getMockBookingsSummary,
+  getMockRevenueReport,
   isMockEnabled,
-  mockBookingsSummary,
-  mockRevenueReport,
   mockTaskerPerformance,
 } from './mock/mockData';
 
@@ -18,7 +18,7 @@ export async function getRevenueReport(
   to: string,
 ): Promise<RevenueReport> {
   if (isMockEnabled) {
-    return delayMock({ ...mockRevenueReport, from, to });
+    return delayMock(getMockRevenueReport(from, to));
   }
 
   const { data } = await apiClient.get<RevenueReport>('/reports/revenue', {
@@ -32,7 +32,7 @@ export async function getBookingsSummary(
   to: string,
 ): Promise<BookingsSummaryItem[]> {
   if (isMockEnabled) {
-    return delayMock([...mockBookingsSummary]);
+    return delayMock(getMockBookingsSummary(from, to));
   }
 
   const { data } = await apiClient.get<BookingsSummaryItem[]>(

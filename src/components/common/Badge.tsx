@@ -1,7 +1,20 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
+export type BadgeVariant =
+  | 'success'
+  | 'warning'
+  | 'danger'
+  | 'info'
+  | 'accent'
+  | 'neutral'
+  | 'sky'
+  | 'lilac'
+  | 'peach'
+  | 'mint'
+  | 'rose';
+
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: 'success' | 'warning' | 'danger' | 'neutral';
+  variant?: BadgeVariant;
   children: ReactNode;
 }
 
