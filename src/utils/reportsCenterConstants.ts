@@ -29,7 +29,7 @@ export const REPORT_META_CARDS: ReportMetaCard[] = [
     chartTypeName: 'Biểu đồ cột (Bar Chart)',
     badgeText: 'Hiệu suất đối tác',
     highlightValue: '—',
-    highlightLabel: 'Tasker hoàn thành nhiều nhất',
+    highlightLabel: 'Tasker dẫn đầu',
   },
   {
     key: 'user-roles',

@@ -9,7 +9,7 @@ interface ApiErrorResponse {
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
     if (!error.response) {
-      return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng hoặc máy chủ.';
+      return 'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối mạng rồi thử lại.';
     }
 
     const { status, data } = error.response;

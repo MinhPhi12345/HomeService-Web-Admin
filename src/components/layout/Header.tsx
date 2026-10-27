@@ -57,8 +57,11 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const totalTodo = counts.pendingTaskers + counts.openDisputes + counts.flaggedReviews;
 
   const nameParts = (user?.fullName ?? 'Admin').trim().split(/\s+/);
-  const initialLetter = (nameParts[nameParts.length - 1] ?? 'A').charAt(0).toUpperCase();
-  const shortName = nameParts.slice(-2).join(' ');
+  // Chữ viết tắt: chữ đầu của từ đầu + từ cuối ("Quản trị viên" → QV, "Đặng Hoàng Minh Phi" → ĐP)
+  const initialLetter = (
+    nameParts.length > 1 ? `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}` : nameParts[0].charAt(0)
+  ).toUpperCase();
+  const displayName = user?.fullName?.trim() || 'Quản trị viên';
 
   useEffect(() => {
     if (!isBellOpen) return;
@@ -150,7 +153,10 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             title="Đăng xuất"
           >
             <div className="header-avatar-circle">{initialLetter}</div>
-            <span className="header-role-text" title={user?.fullName}>{shortName}</span>
+            <span className="header-user-info">
+              <span className="header-user-name" title={displayName}>{displayName}</span>
+              <span className="header-user-role">Admin</span>
+            </span>
             <LogOut size={14} className="header-logout-icon" />
           </div>
         </div>
