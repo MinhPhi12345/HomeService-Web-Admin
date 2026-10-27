@@ -42,12 +42,18 @@ export function formatDateTime(isoDateString?: string | null): string {
 export function getImageUrl(pathOrUrl?: string | null): string {
   if (!pathOrUrl) return '';
 
+  const base = import.meta.env.VITE_API_BASE_URL ?? '';
+  const origin = base.replace(/\/api\/?$/, '');
+
+  if (pathOrUrl.startsWith('blob:') || pathOrUrl.startsWith('data:')) return pathOrUrl;
+
+  // Ảnh cũ lưu kèm tên máy ("http://localhost:8080/uploads/…") → trỏ về Backend đang dùng
+  const legacy = pathOrUrl.match(/^https?:\/\/[^/]+(\/uploads\/.*)$/i);
+  if (legacy) return `${origin}${legacy[1]}`;
+
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
     return pathOrUrl;
   }
-
-  const base = import.meta.env.VITE_API_BASE_URL ?? '';
-  const origin = base.replace(/\/api\/?$/, '');
   const cleanPath = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
 
   return `${origin}${cleanPath}`;
