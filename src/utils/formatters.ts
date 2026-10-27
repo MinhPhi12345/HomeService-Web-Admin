@@ -42,7 +42,7 @@ export function formatDateTime(isoDateString?: string | null): string {
 export function getImageUrl(pathOrUrl?: string | null): string {
   if (!pathOrUrl) return '';
 
-  const base = import.meta.env.VITE_API_BASE_URL ?? '';
+  const base = import.meta.env.VITE_API_BASE_URL ?? 'https://api.homeservice.id.vn/api';
   const origin = base.replace(/\/api\/?$/, '');
 
   if (pathOrUrl.startsWith('blob:') || pathOrUrl.startsWith('data:')) return pathOrUrl;
