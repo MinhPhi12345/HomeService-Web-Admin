@@ -19,16 +19,24 @@ src/
 └── App.tsx            # Route + layout khung quản trị
 ```
 
-## Các trang đã scaffold
+## Các trang & chức năng
 
-| Trang | User Story |
-|---|---|
-| DashboardPage | US31 – Báo cáo doanh thu (tổng quan) |
-| ServiceCategoriesPage | US07/US08/US09/US11 – CRUD danh mục & bảng giá dịch vụ |
-| UsersPage | US30 – Quản lý danh sách KH/Tasker, khóa/mở khóa |
-| TaskerVerificationPage | US04 – Xét duyệt hồ sơ Tasker |
+| Trang | Chức năng | User Story |
+|---|---|---|
+| Dashboard | 4 thẻ số liệu (doanh thu, hoa hồng, đơn hoàn thành, tiền tạm giữ), biểu đồ doanh thu theo ngày, trạng thái đơn, top Tasker, việc cần xử lý; lọc 7/30/90 ngày | US31, US32 |
+| Dịch vụ & bảng giá | CRUD, tìm kiếm, phân trang, STT, lọc trạng thái (màu) & đơn vị tính, xóa có xác nhận + khôi phục, xuất Excel | US07–US11 |
+| Người dùng | Lọc theo vai trò, tìm kiếm, khóa / mở khóa có xác nhận, xuất Excel | US06, US30 |
+| Duyệt Tasker | Xem hồ sơ + ảnh CCCD, duyệt / từ chối có xác nhận, xuất Excel | US04 |
+| Khiếu nại | Danh sách Chờ xử lý / Đã xử lý, hồ sơ ảnh minh chứng – check-in/out – phản hồi Tasker, phân xử (bác / hoàn một phần / hoàn toàn bộ / làm lại), xuất Excel | US28, US29, US36 |
+| Đánh giá bị báo cáo | Lọc theo số sao, giữ lại hoặc xóa đánh giá (có xác nhận), xuất Excel | US27 |
+| Báo cáo doanh thu | 8 chỉ số, biểu đồ cột theo ngày/tháng/năm, nhấn cột xem giao dịch, xuất Excel 4 sheet (tổng hợp, theo kỳ, toàn bộ giao dịch, trạng thái đơn) | US31 |
+| Nhật ký kiểm toán | Lọc theo hành động / mã đơn / ngày, phân trang server, xuất Excel toàn bộ | NFR-16 |
+| Trung tâm báo cáo | 4 báo cáo: doanh thu (Bar), trạng thái đơn (Pie), hiệu suất Tasker (Bar), người dùng theo vai trò (Pie); nhấn biểu đồ xem chi tiết từ API; in báo cáo & in phiếu chi tiết; xuất Excel | US31, US32 |
 
-Các chức năng còn lại (US06 phân quyền chi tiết, US27 xử lý khiếu nại, US32 báo cáo hiệu suất Tasker...) sẽ được nhóm bổ sung dần theo Sprint trong file Backlog — service tương ứng (`userService.ts`, `reportService.ts`) đã có sẵn hàm gọi API, chỉ cần thêm trang UI.
+Số trên Sidebar / chuông thông báo (hồ sơ chờ duyệt, khiếu nại chờ xử lý, đánh giá bị báo cáo) lấy trực tiếp từ API và tự làm mới mỗi phút.
+Admin đăng nhập ở Web Customer được chuyển thẳng sang đây (phiên đi qua `#auth=` trên URL, xem `src/utils/handoff.ts`).
+
+API Backend cần có: `GET /api/auditlogs`, `GET /api/reports/bookings`, `GET /api/reports/revenue/transactions` (nhánh Backend cập nhật cùng đợt này).
 
 ## Chạy dự án
 

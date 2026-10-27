@@ -1,51 +1,75 @@
-import { useEffect, useState } from "react";
-import { getUsers, setUserActiveStatus } from "../services/userService";
-import type { AdminUser } from "../types";
+import { useAuth } from '../context/useAuth';
+import { useUserManagement } from '../hooks/useUserManagement';
+import ConfirmDialog from '../components/common/ConfirmDialog';
+import UserFilterTabs from '../components/users/UserFilterTabs';
+import UserTable from '../components/users/UserTable';
 
-// EP08 - US30: Quản lý danh sách khách hàng & Tasker (khóa/mở khóa tài khoản)
 export default function UsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
-
-  async function load() {
-    setUsers(await getUsers());
-  }
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  async function toggleActive(u: AdminUser) {
-    await setUserActiveStatus(u.id, !u.isActive);
-    load();
-  }
+  const { user: currentAdmin } = useAuth();
+  const {
+    users,
+    roleFilter,
+    keyword,
+    page,
+    pageSize,
+    setPage,
+    setPageSize,
+    isLoading,
+    targetUser,
+    setTargetUser,
+    isUpdatingStatus,
+    isExporting,
+    onRoleChange,
+    onSearchChange,
+    onConfirmToggleStatus,
+    onExportExcel,
+  } = useUserManagement();
 
   return (
-    <div>
-      <h1>Quản lý người dùng</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Họ tên</th>
-            <th>Email</th>
-            <th>Vai trò</th>
-            <th>Trạng thái</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td>{u.fullName}</td>
-              <td>{u.email}</td>
-              <td>{["Khách hàng", "Tasker", "Admin"][u.role]}</td>
-              <td>{u.isActive ? "Hoạt động" : "Đã khóa"}</td>
-              <td>
-                <button onClick={() => toggleActive(u)}>{u.isActive ? "Khóa" : "Mở khóa"}</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="admin-page">
+      <UserFilterTabs
+        currentRole={roleFilter}
+        onRoleChange={onRoleChange}
+        keyword={keyword}
+        onSearchChange={onSearchChange}
+        onExportExcel={onExportExcel}
+        isExporting={isExporting}
+        totalRecords={users.length}
+      />
+
+      <UserTable
+        users={users}
+        totalRecords={users.length}
+        currentPage={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        currentAdminId={currentAdmin?.userId}
+        isLoading={isLoading}
+        onToggleStatus={(u) => setTargetUser(u)}
+      />
+
+      <div className="admin-notice-box">
+        <span>
+          ⓘ Tài khoản bị khóa không đăng nhập được; Admin không thể tự khóa chính mình. Khách nợ quá 7 ngày có thể bị khóa.
+        </span>
+      </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(targetUser)}
+        title={targetUser?.isActive ? 'Xác nhận khóa tài khoản' : 'Xác nhận mở khóa tài khoản'}
+        message={
+          targetUser?.isActive
+            ? `Bạn có chắc chắn muốn khóa tài khoản "${targetUser.fullName}"? Người dùng này sẽ không thể đăng nhập vào hệ thống.`
+            : `Bạn có chắc chắn muốn mở khóa tài khoản "${targetUser?.fullName}"?`
+        }
+        confirmText={targetUser?.isActive ? 'Khóa' : 'Mở khóa'}
+        cancelText="Hủy"
+        confirmVariant={targetUser?.isActive ? 'danger' : 'primary'}
+        isLoading={isUpdatingStatus}
+        onConfirm={onConfirmToggleStatus}
+        onCancel={() => setTargetUser(null)}
+      />
     </div>
   );
 }

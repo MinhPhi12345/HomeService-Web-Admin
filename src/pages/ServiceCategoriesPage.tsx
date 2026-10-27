@@ -1,106 +1,106 @@
-import { useEffect, useState } from "react";
-import {
-  createServiceCategory,
-  deleteServiceCategory,
-  getServiceCategories,
-  updateServiceCategory,
-} from "../services/serviceCatalogService";
-import type { ServiceCategory } from "../types";
-
-const emptyForm = { name: "", description: "", basePrice: 0, unit: "giờ", iconUrl: "" };
+import ConfirmDialog from '../components/common/ConfirmDialog';
+import ServiceFormPanel from '../components/services/ServiceFormPanel';
+import ServiceTable from '../components/services/ServiceTable';
+import { useServiceCatalog } from '../hooks/useServiceCatalog';
 
 // EP02 - US07/US08/US09/US11: Thêm/sửa/xóa danh mục dịch vụ & bảng giá
 export default function ServiceCategoriesPage() {
-  const [items, setItems] = useState<ServiceCategory[]>([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState<number | null>(null);
-
-  async function load() {
-    setItems(await getServiceCategories());
-  }
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (editingId) {
-      await updateServiceCategory(editingId, form);
-    } else {
-      await createServiceCategory(form);
-    }
-    setForm(emptyForm);
-    setEditingId(null);
-    load();
-  }
-
-  function handleEdit(item: ServiceCategory) {
-    setEditingId(item.id);
-    setForm({
-      name: item.name,
-      description: item.description ?? "",
-      basePrice: item.basePrice,
-      unit: item.unit,
-      iconUrl: item.iconUrl ?? "",
-    });
-  }
-
-  async function handleDelete(id: number) {
-    await deleteServiceCategory(id);
-    load();
-  }
+  const {
+    items,
+    units,
+    statusFilter,
+    unitFilter,
+    statusCounts,
+    onStatusFilter,
+    onUnitFilter,
+    restoreTarget,
+    isRestoring,
+    onPromptRestore,
+    onCancelRestore,
+    onConfirmRestore,
+    keyword,
+    page,
+    pageSize,
+    setPage,
+    setPageSize,
+    selectedItem,
+    isLoading,
+    isSubmitting,
+    deleteTarget,
+    isDeleting,
+    isExporting,
+    onSearch,
+    onSelectForEdit,
+    onResetForm,
+    onSave,
+    onPromptDelete,
+    onCancelDelete,
+    onConfirmDelete,
+    onExportExcel,
+  } = useServiceCatalog();
 
   return (
-    <div>
-      <h1>Quản lý dịch vụ</h1>
+    <div className="service-categories-page">
+      <div className="service-split-layout">
+        <div className="service-left-pane">
+          <ServiceTable
+            items={items}
+            totalRecords={items.length}
+            currentPage={page}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            selectedId={selectedItem?.id ?? null}
+            isLoading={isLoading}
+            keyword={keyword}
+            onSearch={onSearch}
+            onAddNew={onResetForm}
+            onEdit={onSelectForEdit}
+            onDelete={onPromptDelete}
+            onRestore={onPromptRestore}
+            units={units}
+            statusFilter={statusFilter}
+            unitFilter={unitFilter}
+            statusCounts={statusCounts}
+            onStatusFilter={onStatusFilter}
+            onUnitFilter={onUnitFilter}
+            onExportExcel={onExportExcel}
+            isExporting={isExporting}
+          />
+        </div>
 
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 8, maxWidth: 400, marginBottom: 24 }}>
-        <input
-          placeholder="Tên dịch vụ"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
-        <input
-          placeholder="Mô tả"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Giá (VND)"
-          value={form.basePrice}
-          onChange={(e) => setForm({ ...form, basePrice: Number(e.target.value) })}
-          required
-        />
-        <input placeholder="Đơn vị" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} />
-        <button type="submit">{editingId ? "Cập nhật dịch vụ" : "Thêm dịch vụ"}</button>
-      </form>
+        <div className="service-right-pane">
+          <ServiceFormPanel
+            key={selectedItem?.id ?? 'create'}
+            selectedItem={selectedItem}
+            isSubmitting={isSubmitting}
+            onSave={onSave}
+            onCancel={onResetForm}
+          />
+        </div>
+      </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Tên</th>
-            <th>Giá</th>
-            <th>Đơn vị</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((s) => (
-            <tr key={s.id}>
-              <td>{s.name}</td>
-              <td>{s.basePrice.toLocaleString("vi-VN")}đ</td>
-              <td>{s.unit}</td>
-              <td>
-                <button onClick={() => handleEdit(s)}>Sửa</button>
-                <button onClick={() => handleDelete(s.id)}>Xóa</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Xác nhận xóa dịch vụ"
+        message={`Bạn có chắc chắn muốn xóa dịch vụ "${deleteTarget?.name}"? Dịch vụ sẽ bị ẩn khỏi khách hàng (đơn cũ không bị ảnh hưởng) và có thể khôi phục lại sau.`}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        confirmVariant="danger"
+        isLoading={isDeleting}
+        onConfirm={onConfirmDelete}
+        onCancel={onCancelDelete}
+      />
+      <ConfirmDialog
+        isOpen={Boolean(restoreTarget)}
+        title="Khôi phục dịch vụ"
+        message={`Hiển thị lại dịch vụ "${restoreTarget?.name}" cho khách hàng đặt đơn?`}
+        confirmText="Khôi phục"
+        cancelText="Hủy"
+        isLoading={isRestoring}
+        onConfirm={onConfirmRestore}
+        onCancel={onCancelRestore}
+      />
     </div>
   );
 }

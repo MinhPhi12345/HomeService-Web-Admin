@@ -1,0 +1,161 @@
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  .admin-sidebar,
+  .admin-header,
+  .sidebar-overlay,
+  .reports-nav-tabs,
+  .reports-filter-bar,
+  .btn,
+  button,
+  .no-print,
+  .modal-actions,
+  .header-icon-btn,
+  .header-user-badge,
+  .sidebar-brand {
+    display: none !important;
+  }
+
+  .admin-content,
+  .admin-main,
+  .reports-center-page {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-slip-container {
+    width: 100%;
+    max-width: 180mm;
+    margin: 0 auto;
+    padding: 16px;
+    border: 2px solid #0F2A33;
+    border-radius: 6px;
+    page-break-inside: avoid;
+    background: #ffffff;
+  }
+
+  .print-slip-header {
+    text-align: center;
+    border-bottom: 2px dashed #0F2A33;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .print-slip-brand {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #0F2A33;
+    text-transform: uppercase;
+  }
+
+  .print-slip-title {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .print-slip-code {
+    font-size: 10pt;
+    color: #4B6670;
+  }
+
+  .print-slip-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 11pt;
+  }
+
+  .print-slip-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+
+  .print-slip-table th,
+  .print-slip-table td {
+    border: 1px solid #D9E3E6;
+    padding: 8px 10px;
+    font-size: 11pt;
+    text-align: left;
+  }
+
+  .print-slip-table th {
+    background-color: #F8FAFC !important;
+    font-weight: 600;
+  }
+
+  .print-slip-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #E2E8F0;
+    font-size: 10pt;
+  }
+
+  .print-slip-signature-box {
+    text-align: center;
+    width: 45%;
+  }
+
+  .print-slip-signature-space {
+    height: 48px;
+  }
+
+  .print-report-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #0F2A33;
+    padding-bottom: 10px;
+  }
+
+  .print-report-title {
+    font-size: 18pt;
+    font-weight: 700;
+    color: #0F2A33;
+  }
+
+  .print-report-meta {
+    font-size: 10.5pt;
+    color: #4B6670;
+    margin-top: 4px;
+  }
+
+  .print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #D9E3E6 !important;
+    padding: 6px 10px !important;
+    font-size: 10pt !important;
+  }
+
+  .print-table th {
+    background: #F1F5F9 !important;
+  }
+}

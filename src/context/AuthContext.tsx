@@ -1,28 +1,34 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import type { AuthResponse } from "../types";
-
-interface AuthContextValue {
-  user: AuthResponse | null;
-  setUser: (user: AuthResponse | null) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { useState, type ReactNode } from 'react';
+import type { AuthResponse } from '../types';
+import { AuthContext } from './useAuth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<AuthResponse | null>(() => {
-    const raw = localStorage.getItem("adminUser");
-    return raw ? (JSON.parse(raw) as AuthResponse) : null;
+    const raw = localStorage.getItem('adminUser');
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw) as AuthResponse;
+      if (parsed.expiresAt && new Date(parsed.expiresAt) <= new Date()) {
+        localStorage.removeItem('adminUser');
+        localStorage.removeItem('accessToken');
+        return null;
+      }
+      return parsed;
+    } catch {
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('accessToken');
+      return null;
+    }
   });
 
   function setUser(next: AuthResponse | null) {
     setUserState(next);
     if (next) {
-      localStorage.setItem("adminUser", JSON.stringify(next));
-      localStorage.setItem("accessToken", next.accessToken);
+      localStorage.setItem('adminUser', JSON.stringify(next));
+      localStorage.setItem('accessToken', next.accessToken);
     } else {
-      localStorage.removeItem("adminUser");
-      localStorage.removeItem("accessToken");
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('accessToken');
     }
   }
 
@@ -30,11 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
-  return <AuthContext.Provider value={{ user, setUser, logout }}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth phải được dùng bên trong AuthProvider");
-  return ctx;
+  return (
+    <AuthContext.Provider value={{ user, setUser, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
