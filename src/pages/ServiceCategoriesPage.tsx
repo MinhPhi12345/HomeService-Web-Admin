@@ -7,6 +7,17 @@ import { useServiceCatalog } from '../hooks/useServiceCatalog';
 export default function ServiceCategoriesPage() {
   const {
     items,
+    units,
+    statusFilter,
+    unitFilter,
+    statusCounts,
+    onStatusFilter,
+    onUnitFilter,
+    restoreTarget,
+    isRestoring,
+    onPromptRestore,
+    onCancelRestore,
+    onConfirmRestore,
     keyword,
     page,
     pageSize,
@@ -46,6 +57,13 @@ export default function ServiceCategoriesPage() {
             onAddNew={onResetForm}
             onEdit={onSelectForEdit}
             onDelete={onPromptDelete}
+            onRestore={onPromptRestore}
+            units={units}
+            statusFilter={statusFilter}
+            unitFilter={unitFilter}
+            statusCounts={statusCounts}
+            onStatusFilter={onStatusFilter}
+            onUnitFilter={onUnitFilter}
             onExportExcel={onExportExcel}
             isExporting={isExporting}
           />
@@ -65,13 +83,23 @@ export default function ServiceCategoriesPage() {
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
         title="Xác nhận xóa dịch vụ"
-        message={`Bạn có chắc chắn muốn xóa dịch vụ "${deleteTarget?.name}"? Thao tác này sẽ ẩn dịch vụ khỏi khách hàng.`}
+        message={`Bạn có chắc chắn muốn xóa dịch vụ "${deleteTarget?.name}"? Dịch vụ sẽ bị ẩn khỏi khách hàng (đơn cũ không bị ảnh hưởng) và có thể khôi phục lại sau.`}
         confirmText="Xóa"
         cancelText="Hủy"
         confirmVariant="danger"
         isLoading={isDeleting}
         onConfirm={onConfirmDelete}
         onCancel={onCancelDelete}
+      />
+      <ConfirmDialog
+        isOpen={Boolean(restoreTarget)}
+        title="Khôi phục dịch vụ"
+        message={`Hiển thị lại dịch vụ "${restoreTarget?.name}" cho khách hàng đặt đơn?`}
+        confirmText="Khôi phục"
+        cancelText="Hủy"
+        isLoading={isRestoring}
+        onConfirm={onConfirmRestore}
+        onCancel={onCancelRestore}
       />
     </div>
   );

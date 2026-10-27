@@ -34,10 +34,16 @@ export interface PendingTaskerItem {
 }
 
 export interface TaskerPerformanceItem {
-  taskerId?: number | null;
-  taskerName?: string | null;
+  taskerId: number;
   completedCount: number;
   cancelledCount: number;
-  ratingAverage?: number;
-  violationPoints?: number;
+  taskerName: string;
+  ratingAverage?: number | null;
+  acceptedOffers: number;
+  totalOffers: number;
+  acceptanceRate?: number | null;
+  noShowCount: number;
+  disputeCount: number;
+  violationPoints: number;
+  totalEarnings: number;
 }

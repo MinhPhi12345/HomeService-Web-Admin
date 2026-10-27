@@ -1,47 +1,37 @@
-interface OrderStatusProgressListProps {
-  completed: number;
-  inProgress: number;
-  findingTasker: number;
-  disputed: number;
-  cancelled: number;
+interface StatusGroup {
+  key: string;
+  label: string;
+  color: string;
+  count: number;
 }
 
-export default function OrderStatusProgressList({
-  completed,
-  inProgress,
-  findingTasker,
-  disputed,
-  cancelled,
-}: OrderStatusProgressListProps) {
-  const total = completed + inProgress + findingTasker + disputed + cancelled;
+interface OrderStatusProgressListProps {
+  groups: StatusGroup[];
+  total: number;
+}
 
-  const items = [
-    { label: 'Đã hoàn tất', count: completed, color: 'var(--success)' },
-    { label: 'Đang thực hiện', count: inProgress, color: 'var(--primary-500)' },
-    { label: 'Đang tìm Tasker', count: findingTasker, color: 'var(--accent-500)' },
-    { label: 'Đang khiếu nại', count: disputed, color: '#F97316' },
-    { label: 'Đã hủy', count: cancelled, color: 'var(--danger)' },
-  ];
-
+export default function OrderStatusProgressList({ groups, total }: OrderStatusProgressListProps) {
   return (
     <div className="card order-progress-card">
-      <h3 className="chart-title">Trạng thái đơn hàng</h3>
+      <h3 className="chart-title">Trạng thái đơn hàng ({total.toLocaleString('vi-VN')} đơn)</h3>
       <div className="order-progress-list">
-        {items.map((item, idx) => {
+        {groups.map((item) => {
           const percent = total > 0 ? (item.count / total) * 100 : 0;
           return (
-            <div key={idx} className="order-progress-item">
+            <div key={item.key} className="order-progress-item">
               <div className="order-progress-labels">
-                <span className="order-status-name">{item.label}</span>
-                <span className="order-status-count">{item.count}</span>
+                <span className="order-status-name">
+                  <span className="legend-color-dot" style={{ backgroundColor: item.color }} />
+                  {item.label}
+                </span>
+                <span className="order-status-count">
+                  {item.count} <small>({percent.toFixed(0)}%)</small>
+                </span>
               </div>
               <div className="progress-track">
                 <div
                   className="progress-fill"
-                  style={{
-                    width: `${Math.max(percent, 3)}%`,
-                    backgroundColor: item.color,
-                  }}
+                  style={{ width: `${item.count > 0 ? Math.max(percent, 3) : 0}%`, backgroundColor: item.color }}
                 />
               </div>
             </div>

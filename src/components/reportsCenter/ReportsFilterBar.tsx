@@ -7,6 +7,7 @@ interface ReportsFilterBarProps {
   onFromChange: (val: string) => void;
   onToChange: (val: string) => void;
   onQuickPreset: (days: number) => void;
+  activePreset?: number | null;
   onPrint: () => void;
   onExport: () => void;
   onRetry: () => void;
@@ -20,6 +21,7 @@ export default function ReportsFilterBar({
   onFromChange,
   onToChange,
   onQuickPreset,
+  activePreset = null,
   onPrint,
   onExport,
   onRetry,
@@ -38,6 +40,7 @@ export default function ReportsFilterBar({
                 type="date"
                 className="input-date"
                 value={dateFrom}
+                max={dateTo}
                 onChange={(e) => onFromChange(e.target.value)}
               />
             </div>
@@ -49,6 +52,7 @@ export default function ReportsFilterBar({
                 type="date"
                 className="input-date"
                 value={dateTo}
+                min={dateFrom}
                 onChange={(e) => onToChange(e.target.value)}
               />
             </div>
@@ -58,7 +62,7 @@ export default function ReportsFilterBar({
                 <button
                   key={p.days}
                   type="button"
-                  className="preset-pill-btn"
+                  className={`preset-pill-btn ${activePreset === p.days ? 'active' : ''}`}
                   onClick={() => onQuickPreset(p.days)}
                 >
                   {p.label}
@@ -72,7 +76,7 @@ export default function ReportsFilterBar({
       <div className="filter-actions-section">
         <button
           type="button"
-          className="btn btn-outline btn-sm action-btn"
+          className="btn btn-outline btn-sm rc-action-btn"
           onClick={onRetry}
           title="Tải lại dữ liệu"
         >
@@ -82,7 +86,7 @@ export default function ReportsFilterBar({
 
         <button
           type="button"
-          className="btn btn-outline btn-sm action-btn"
+          className="btn btn-outline btn-sm rc-action-btn"
           onClick={onPrint}
           title="In toàn bộ báo cáo"
         >
@@ -92,7 +96,7 @@ export default function ReportsFilterBar({
 
         <button
           type="button"
-          className="btn btn-primary btn-sm action-btn"
+          className="btn btn-primary btn-sm rc-action-btn"
           onClick={onExport}
           disabled={isExporting}
           title="Xuất bảng số liệu ra file Excel"

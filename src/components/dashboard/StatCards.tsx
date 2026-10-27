@@ -8,19 +8,13 @@ interface StatCardsProps {
   report: RevenueReport | null;
   completedCount: number;
   cancelledCount: number;
+  totalBookings: number;
+  days: number;
 }
 
-export default function StatCards({
-  report,
-  completedCount,
-  cancelledCount,
-}: StatCardsProps) {
-  const totalRevenue = report ? formatVnd(report.totalRevenue) : NO_DATA;
-  const totalCommission = report ? formatVnd(report.totalCommission) : NO_DATA;
-  const holdingAmount =
-    report?.holdingAmount !== undefined
-      ? formatVnd(report.holdingAmount)
-      : NO_DATA;
+export default function StatCards({ report, completedCount, cancelledCount, totalBookings, days }: StatCardsProps) {
+  const rate = report && report.totalRevenue > 0 ? Math.round((report.totalCommission / report.totalRevenue) * 1000) / 10 : null;
+  const completionRate = totalBookings > 0 ? Math.round((completedCount / totalBookings) * 1000) / 10 : null;
 
   return (
     <div className="stats-grid">
@@ -31,19 +25,21 @@ export default function StatCards({
             <DollarSign size={20} />
           </div>
         </div>
-        <div className="stat-card-value">{totalRevenue}</div>
-        <div className="stat-card-sub text-success">▲ 12% so với tháng trước</div>
+        <div className="stat-card-value">{report ? formatVnd(report.totalRevenue) : NO_DATA}</div>
+        <div className="stat-card-sub">
+          {report ? `${report.transactionCount.toLocaleString('vi-VN')} giao dịch · ${days} ngày qua` : '—'}
+        </div>
       </div>
 
       <div className="card stat-card">
         <div className="stat-card-header">
-          <span className="stat-card-label">Hoa hồng nền tảng (20%)</span>
+          <span className="stat-card-label">Hoa hồng nền tảng{rate !== null ? ` (${rate}%)` : ''}</span>
           <div className="stat-card-icon commission">
             <Percent size={20} />
           </div>
         </div>
-        <div className="stat-card-value">{totalCommission}</div>
-        <div className="stat-card-sub">Doanh thu của Home Service</div>
+        <div className="stat-card-value">{report ? formatVnd(report.totalCommission) : NO_DATA}</div>
+        <div className="stat-card-sub">Tasker nhận {report ? formatVnd(report.taskerPayout) : '—'}</div>
       </div>
 
       <div className="card stat-card">
@@ -53,8 +49,14 @@ export default function StatCards({
             <CheckCircle2 size={20} />
           </div>
         </div>
-        <div className="stat-card-value">{completedCount}</div>
-        <div className="stat-card-sub">{cancelledCount} đơn bị hủy</div>
+        <div className="stat-card-value">
+          {completedCount.toLocaleString('vi-VN')}
+          <small className="stat-card-of"> / {totalBookings.toLocaleString('vi-VN')} đơn</small>
+        </div>
+        <div className="stat-card-sub">
+          {completionRate !== null ? `Tỉ lệ hoàn tất ${completionRate}% · ` : ''}
+          {cancelledCount} đơn hủy / hết hạn
+        </div>
       </div>
 
       <div className="card stat-card">
@@ -64,8 +66,10 @@ export default function StatCards({
             <Hourglass size={20} />
           </div>
         </div>
-        <div className="stat-card-value">{holdingAmount}</div>
-        <div className="stat-card-sub">Chờ giải ngân</div>
+        <div className="stat-card-value">{report ? formatVnd(report.heldAmount) : NO_DATA}</div>
+        <div className="stat-card-sub">
+          Chờ khách xác nhận để giải ngân{report && report.refundedAmount > 0 ? ` · đã hoàn ${formatVnd(report.refundedAmount)}` : ''}
+        </div>
       </div>
     </div>
   );

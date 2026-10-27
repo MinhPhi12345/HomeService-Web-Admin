@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useAdminCounters, type AdminCounters } from '../../context/useAdminCounters';
 import {
   AlertTriangle,
   BarChart3,
@@ -22,22 +23,23 @@ interface NavItemDef {
   to: string;
   label: string;
   icon: React.ReactNode;
-  badge?: number;
+  badgeKey?: keyof AdminCounters;
 }
 
 const navItems: NavItemDef[] = [
   { to: '/', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
   { to: '/services', label: 'Dịch vụ & bảng giá', icon: <Layers size={18} /> },
   { to: '/users', label: 'Người dùng', icon: <Users size={18} /> },
-  { to: '/tasker-verification', label: 'Duyệt Tasker', icon: <UserCheck size={18} />, badge: 5 },
-  { to: '/disputes', label: 'Khiếu nại', icon: <AlertTriangle size={18} />, badge: 2 },
-  { to: '/flagged-reviews', label: 'Đánh giá báo cáo', icon: <Flame size={18} />, badge: 2 },
+  { to: '/tasker-verification', label: 'Duyệt Tasker', icon: <UserCheck size={18} />, badgeKey: 'pendingTaskers' },
+  { to: '/disputes', label: 'Khiếu nại', icon: <AlertTriangle size={18} />, badgeKey: 'openDisputes' },
+  { to: '/flagged-reviews', label: 'Đánh giá báo cáo', icon: <Flame size={18} />, badgeKey: 'flaggedReviews' },
   { to: '/revenue-report', label: 'Báo cáo doanh thu', icon: <BarChart3 size={18} /> },
   { to: '/audit-logs', label: 'Nhật ký kiểm toán', icon: <ClipboardList size={18} /> },
   { to: '/reports', label: 'Trung tâm báo cáo', icon: <PieChart size={18} /> },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { counts } = useAdminCounters();
   return (
     <>
       <div
@@ -67,7 +69,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <nav className="sidebar-nav">
-          {navItems.map((item) => (
+          {navItems.map((item) => {
+            const badge = item.badgeKey ? counts[item.badgeKey] : 0;
+            return (
             <NavLink
               key={item.to}
               to={item.to}
@@ -79,11 +83,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <span className="sidebar-nav-icon">{item.icon}</span>
               <span className="sidebar-nav-label">{item.label}</span>
-              {typeof item.badge === 'number' && item.badge > 0 && (
-                <span className="sidebar-nav-badge">{item.badge}</span>
-              )}
+              {badge > 0 && <span className="sidebar-nav-badge">{badge > 99 ? '99+' : badge}</span>}
             </NavLink>
-          ))}
+            );
+          })}
         </nav>
       </aside>
     </>

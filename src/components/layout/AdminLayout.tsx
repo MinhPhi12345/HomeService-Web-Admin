@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { AdminCountersProvider } from '../../context/AdminCountersContext';
 
 export default function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
+    <AdminCountersProvider>
     <div className="admin-container">
       <Sidebar
         isOpen={isSidebarOpen}
@@ -19,5 +21,6 @@ export default function AdminLayout() {
         </main>
       </div>
     </div>
+    </AdminCountersProvider>
   );
 }

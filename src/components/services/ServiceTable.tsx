@@ -1,5 +1,6 @@
 import { Download, Loader2, Plus, Search } from 'lucide-react';
 import type { ServiceCategoryResponse } from '../../types';
+import type { ServiceStatusFilter } from '../../hooks/useServiceCatalog';
 import EmptyState from '../common/EmptyState';
 import Pagination from '../common/Pagination';
 import TableSkeleton from '../common/TableSkeleton';
@@ -19,6 +20,13 @@ interface ServiceTableProps {
   onAddNew: () => void;
   onEdit: (item: ServiceCategoryResponse) => void;
   onDelete: (item: ServiceCategoryResponse) => void;
+  onRestore: (item: ServiceCategoryResponse) => void;
+  units: string[];
+  statusFilter: ServiceStatusFilter;
+  unitFilter: string;
+  statusCounts: Record<ServiceStatusFilter, number>;
+  onStatusFilter: (v: ServiceStatusFilter) => void;
+  onUnitFilter: (v: string) => void;
   onExportExcel: () => void;
   isExporting: boolean;
 }
@@ -37,6 +45,13 @@ export default function ServiceTable({
   onAddNew,
   onEdit,
   onDelete,
+  onRestore,
+  units,
+  statusFilter,
+  unitFilter,
+  statusCounts,
+  onStatusFilter,
+  onUnitFilter,
   onExportExcel,
   isExporting,
 }: ServiceTableProps) {
@@ -46,7 +61,25 @@ export default function ServiceTable({
   return (
     <div className="card service-table-pane">
       <div className="table-top-header">
-        <h2 className="table-count-title">{totalRecords} dịch vụ</h2>
+        <div className="role-tab-group">
+          {(
+            [
+              ['all', 'Tất cả'],
+              ['active', 'Đang hoạt động'],
+              ['inactive', 'Đã ẩn'],
+            ] as [ServiceStatusFilter, string][]
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              className={`role-tab-btn ${statusFilter === key ? 'active' : ''}`}
+              onClick={() => onStatusFilter(key)}
+            >
+              {label}
+              <span className="tab-count">{statusCounts[key]}</span>
+            </button>
+          ))}
+        </div>
         <button type="button" className="btn btn-primary" onClick={onAddNew}>
           <Plus size={16} />
           <span>Thêm dịch vụ</span>
@@ -64,6 +97,20 @@ export default function ServiceTable({
           />
         </div>
 
+        <select
+          className="filter-select"
+          value={unitFilter}
+          onChange={(e) => onUnitFilter(e.target.value)}
+          aria-label="Lọc theo đơn vị tính"
+        >
+          <option value="">Mọi đơn vị tính</option>
+          {units.map((u) => (
+            <option key={u} value={u}>
+              Theo {u}
+            </option>
+          ))}
+        </select>
+
         <div className="toolbar-actions">
           <button
             type="button"
@@ -80,7 +127,7 @@ export default function ServiceTable({
       {isLoading ? (
         <TableSkeleton rows={5} columns={6} />
       ) : totalRecords === 0 ? (
-        <EmptyState title="Không tìm thấy dịch vụ nào" />
+        <EmptyState title="Không tìm thấy dịch vụ nào" description="Thử đổi từ khóa hoặc bộ lọc trạng thái / đơn vị." />
       ) : (
         <>
           <div className="table-responsive">
@@ -104,6 +151,7 @@ export default function ServiceTable({
                     isSelected={selectedId === s.id}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    onRestore={onRestore}
                   />
                 ))}
               </tbody>

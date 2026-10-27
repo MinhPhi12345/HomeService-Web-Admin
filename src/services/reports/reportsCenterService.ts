@@ -1,118 +1,84 @@
-import apiClient from '../api';
 import type {
   BookingStatusPieItem,
   RevenueBarItem,
   TaskerPerformanceBarItem,
   UserRolePieItem,
 } from '../../types/reportsCenter';
-import type { AdminUserItem } from '../../types';
-import {
-  mockBookingStatusPieData,
-  mockRevenueBarData,
-  mockTaskerPerformanceBarData,
-  mockUserRolePieData,
-} from '../mock/mockReportsCenter';
-import { BOOKING_STATUS_LABELS } from '../../utils/constants';
+import type { RevenueGroupBy } from '../../types';
+import { getBookingsSummary, getRevenueReport, getTaskerPerformance } from '../reportService';
+import { getUsers } from '../userService';
+import { bookingStatusColor, bookingStatusLabel } from '../../utils/bookingStatusLabels';
+import { fillSeries, formatPeriod, pickGroupBy, toRangeParams } from '../../utils/dateRange';
 
-const isMockEnabled = import.meta.env.VITE_USE_MOCK === 'true';
-
-const STATUS_COLOR_MAP: Record<string, string> = {
-  Paid: '#22A06B',
-  Completed: '#14B8A6',
-  InProgress: '#4C8DF6',
-  Pending: '#FFB938',
-  Cancelled: '#F5605D',
-  Disputed: '#964817',
-  Refunded: '#5B3BA2',
-};
+// Trung tâm báo cáo: chuyển dữ liệu API thật sang dạng dùng cho biểu đồ (from/to: yyyy-MM-dd)
 
 export async function getRevenueReportBarData(
   from: string,
   to: string,
-): Promise<{ items: RevenueBarItem[]; totalRevenue: number; totalCommission: number; transactionCount: number }> {
-  if (isMockEnabled) {
-    const totalRev = mockRevenueBarData.reduce((acc, curr) => acc + curr.revenue, 0);
-    const totalCom = mockRevenueBarData.reduce((acc, curr) => acc + curr.commission, 0);
-    const totalTx = mockRevenueBarData.reduce((acc, curr) => acc + curr.orderCount, 0);
-    return { items: mockRevenueBarData, totalRevenue: totalRev, totalCommission: totalCom, transactionCount: totalTx };
-  }
-
-  const { data } = await apiClient.get<{
-    totalRevenue: number;
-    totalCommission: number;
-    transactionCount: number;
-  }>('/reports/revenue', { params: { from, to } });
-
-  const singlePeriodItem: RevenueBarItem = {
-    period: `${from.slice(0, 10)} - ${to.slice(0, 10)}`,
-    revenue: data.totalRevenue,
-    commission: data.totalCommission,
-    orderCount: data.transactionCount,
-  };
-
+): Promise<{
+  items: RevenueBarItem[];
+  groupBy: RevenueGroupBy;
+  totalRevenue: number;
+  totalCommission: number;
+  transactionCount: number;
+}> {
+  const groupBy = pickGroupBy(from, to);
+  const iso = toRangeParams(from, to);
+  const data = await getRevenueReport(iso.from, iso.to, groupBy);
+  const series = fillSeries(data.series, from, to, groupBy);
   return {
-    items: data.transactionCount > 0 ? [singlePeriodItem] : [],
+    items: series.map((s) => ({
+      period: s.period,
+      label: formatPeriod(s.period),
+      revenue: s.revenue,
+      commission: s.commission,
+      orderCount: s.transactionCount,
+    })),
+    groupBy,
     totalRevenue: data.totalRevenue,
     totalCommission: data.totalCommission,
     transactionCount: data.transactionCount,
   };
 }
 
-export async function getBookingStatusPieData(
-  from: string,
-  to: string,
-): Promise<BookingStatusPieItem[]> {
-  if (isMockEnabled) {
-    return mockBookingStatusPieData;
-  }
-
-  const { data } = await apiClient.get<{ status: string; count: number }[]>(
-    '/reports/bookings-summary',
-    { params: { from, to } },
-  );
-
+export async function getBookingStatusPieData(from: string, to: string): Promise<BookingStatusPieItem[]> {
+  const iso = toRangeParams(from, to);
+  const data = await getBookingsSummary(iso.from, iso.to);
   const total = data.reduce((acc, curr) => acc + curr.count, 0);
-  return data.map((item) => {
-    const statusDef = Object.values(BOOKING_STATUS_LABELS).find((s) => s.label === item.status);
-    const label = statusDef ? statusDef.label : item.status;
-    const color = STATUS_COLOR_MAP[item.status] ?? '#8CA0A8';
-    const percentage = total > 0 ? Number(((item.count / total) * 100).toFixed(1)) : 0;
-    return { status: item.status, label, count: item.count, percentage, color };
-  });
+  return data
+    .filter((d) => d.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .map((item) => ({
+      status: item.status,
+      label: bookingStatusLabel(item.status),
+      count: item.count,
+      percentage: total > 0 ? Number(((item.count / total) * 100).toFixed(1)) : 0,
+      color: bookingStatusColor(item.status),
+    }));
 }
 
-export async function getTaskerPerformanceBarData(): Promise<TaskerPerformanceBarItem[]> {
-  if (isMockEnabled) {
-    return mockTaskerPerformanceBarData;
-  }
-
-  const { data } = await apiClient.get<{
-    taskerId: number;
-    completedCount: number;
-    cancelledCount: number;
-  }[]>('/reports/tasker-performance');
-
+export async function getTaskerPerformanceBarData(from: string, to: string): Promise<TaskerPerformanceBarItem[]> {
+  const iso = toRangeParams(from, to);
+  const data = await getTaskerPerformance(iso.from, iso.to);
   return data.map((t) => {
     const total = t.completedCount + t.cancelledCount;
-    const rate = total > 0 ? Number(((t.completedCount / total) * 100).toFixed(1)) : 0;
     return {
       taskerId: t.taskerId,
-      taskerName: `Tasker #${t.taskerId}`,
+      taskerName: t.taskerName || `Tasker #${t.taskerId}`,
       completedCount: t.completedCount,
       cancelledCount: t.cancelledCount,
-      rating: 5.0,
-      violationPoints: 0,
-      completionRate: rate,
+      rating: t.ratingAverage ? Number(t.ratingAverage) : null,
+      violationPoints: t.violationPoints ?? 0,
+      completionRate: total > 0 ? Number(((t.completedCount / total) * 100).toFixed(1)) : 0,
+      disputeCount: t.disputeCount ?? 0,
+      acceptanceRate: t.acceptanceRate !== null && t.acceptanceRate !== undefined ? Number((t.acceptanceRate * 100).toFixed(1)) : null,
+      totalEarnings: t.totalEarnings ?? 0,
     };
   });
 }
 
 export async function getUserRolesPieData(): Promise<UserRolePieItem[]> {
-  if (isMockEnabled) {
-    return mockUserRolePieData;
-  }
-
-  const { data: users } = await apiClient.get<AdminUserItem[]>('/users');
+  const users = await getUsers();
   const total = users.length;
 
   const roleBuckets: Record<number, { name: string; count: number; active: number; blocked: number; color: string }> = {

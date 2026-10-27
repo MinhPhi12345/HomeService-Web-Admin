@@ -12,6 +12,13 @@ import TableSkeleton from '../../components/common/TableSkeleton';
 import ErrorState from '../../components/common/ErrorState';
 import { REPORT_TAB_LABELS } from '../../utils/reportsCenterConstants';
 import type { ReportKey } from '../../types/reportsCenter';
+import {
+  buildBookingStatusDetail,
+  buildRevenuePeriodDetail,
+  buildTaskerDetail,
+  buildUserRoleDetail,
+} from '../../utils/reportDetails';
+import { formatVnd } from '../../utils/formatters';
 import '../../assets/reportsPrint.css';
 import '../../assets/reportsCenter.css';
 
@@ -23,6 +30,8 @@ export default function ReportsCenterPage() {
     setDateFrom,
     dateTo,
     setDateTo,
+    activePreset,
+    groupBy,
     revenueData,
     revenueTotals,
     bookingStatusData,
@@ -40,10 +49,22 @@ export default function ReportsCenterPage() {
   } = useReportsCenterData();
 
   const { isExporting, onExport } = useReportsExport();
+  const range = { from: dateFrom, to: dateTo };
+
+  const totalBookings = bookingStatusData.reduce((a, c) => a + c.count, 0);
+  const topTasker = [...taskerData].sort((a, b) => b.completedCount - a.completedCount)[0];
+  const totalUsers = userRoleData.reduce((a, c) => a + c.count, 0);
+  const highlights: Partial<Record<ReportKey, string>> = isLoading
+    ? {}
+    : {
+        revenue: formatVnd(revenueTotals.totalRevenue),
+        'bookings-status': `${totalBookings.toLocaleString('vi-VN')} đơn`,
+        'tasker-performance': topTasker && topTasker.completedCount > 0 ? `${topTasker.taskerName} (${topTasker.completedCount})` : 'Chưa có',
+        'user-roles': `${totalUsers.toLocaleString('vi-VN')} người`,
+      };
 
   const handleExportCurrent = () => {
-    const key = activeTab === 'all' ? 'revenue' : activeTab;
-    onExport(key as ReportKey, {
+    onExport(activeTab, {
       revenueData,
       bookingStatusData,
       taskerData,
@@ -72,6 +93,7 @@ export default function ReportsCenterPage() {
         onFromChange={setDateFrom}
         onToChange={setDateTo}
         onQuickPreset={onQuickPreset}
+        activePreset={activePreset}
         onPrint={onPrintReport}
         onExport={handleExportCurrent}
         onRetry={onRetry}
@@ -86,35 +108,36 @@ export default function ReportsCenterPage() {
       ) : (
         <div className="reports-content-container">
           {activeTab === 'all' && (
-            <ReportsCenterCards onSelectReport={(key) => setActiveTab(key)} />
+            <ReportsCenterCards onSelectReport={(key) => setActiveTab(key)} highlights={highlights} />
           )}
 
           {activeTab === 'revenue' && (
             <RevenueBarReport
               items={revenueData}
+              groupBy={groupBy}
               totals={revenueTotals}
-              onSelectDetail={setSelectedDetail}
+              onSelect={(item) => setSelectedDetail(buildRevenuePeriodDetail(item, range))}
             />
           )}
 
           {activeTab === 'bookings-status' && (
             <BookingsStatusPieReport
               items={bookingStatusData}
-              onSelectDetail={setSelectedDetail}
+              onSelect={(item) => setSelectedDetail(buildBookingStatusDetail(item, range))}
             />
           )}
 
           {activeTab === 'tasker-performance' && (
             <TaskerPerformanceBarReport
               items={taskerData}
-              onSelectDetail={setSelectedDetail}
+              onSelect={(item) => setSelectedDetail(buildTaskerDetail(item, range))}
             />
           )}
 
           {activeTab === 'user-roles' && (
             <UserRolesPieReport
               items={userRoleData}
-              onSelectDetail={setSelectedDetail}
+              onSelect={(item) => setSelectedDetail(buildUserRoleDetail(item))}
             />
           )}
         </div>

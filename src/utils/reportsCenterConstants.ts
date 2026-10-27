@@ -8,7 +8,7 @@ export const REPORT_META_CARDS: ReportMetaCard[] = [
     chartType: 'bar',
     chartTypeName: 'Biểu đồ cột (Bar Chart)',
     badgeText: 'Tài chính & Doanh thu',
-    highlightValue: '189.900.000 đ',
+    highlightValue: '—',
     highlightLabel: 'Tổng doanh thu',
   },
   {
@@ -18,7 +18,7 @@ export const REPORT_META_CARDS: ReportMetaCard[] = [
     chartType: 'pie',
     chartTypeName: 'Biểu đồ tròn (Pie Chart)',
     badgeText: 'Vận hành đơn hàng',
-    highlightValue: '517 đơn',
+    highlightValue: '—',
     highlightLabel: 'Tổng số đơn đặt',
   },
   {
@@ -28,8 +28,8 @@ export const REPORT_META_CARDS: ReportMetaCard[] = [
     chartType: 'bar',
     chartTypeName: 'Biểu đồ cột (Bar Chart)',
     badgeText: 'Hiệu suất đối tác',
-    highlightValue: '96.7%',
-    highlightLabel: 'Tỉ lệ hoàn thành cao nhất',
+    highlightValue: '—',
+    highlightLabel: 'Tasker hoàn thành nhiều nhất',
   },
   {
     key: 'user-roles',
@@ -38,7 +38,7 @@ export const REPORT_META_CARDS: ReportMetaCard[] = [
     chartType: 'pie',
     chartTypeName: 'Biểu đồ tròn (Pie Chart)',
     badgeText: 'Phát triển người dùng',
-    highlightValue: '1.680 người',
+    highlightValue: '—',
     highlightLabel: 'Tổng tài khoản',
   },
 ];
@@ -59,6 +59,7 @@ export const QUICK_DATE_PRESETS = [
   { label: '7 ngày qua', days: 7 },
   { label: '30 ngày qua', days: 30 },
   { label: '90 ngày qua', days: 90 },
+  { label: '12 tháng', days: 365 },
 ] as const;
 
 export const REPORT_TAB_LABELS: Record<string, string> = {

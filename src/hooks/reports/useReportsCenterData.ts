@@ -15,11 +15,15 @@ import {
   getUserRolesPieData,
 } from '../../services/reports/reportsCenterService';
 import { getErrorMessage } from '../../utils/errorHandler';
+import { lastDaysRange } from '../../utils/dateRange';
+import type { RevenueGroupBy } from '../../types';
 
 export function useReportsCenterData() {
   const [activeTab, setActiveTab] = useState<'all' | ReportKey>('all');
-  const [dateFrom, setDateFrom] = useState<string>('2026-10-01');
-  const [dateTo, setDateTo] = useState<string>('2026-10-26');
+  const [dateFrom, setDateFrom] = useState<string>(() => lastDaysRange(30).from);
+  const [dateTo, setDateTo] = useState<string>(() => lastDaysRange(30).to);
+  const [activePreset, setActivePreset] = useState<number | null>(30);
+  const [groupBy, setGroupBy] = useState<RevenueGroupBy>('day');
   const [reloadTrigger, setReloadTrigger] = useState<number>(0);
 
   const [revenueData, setRevenueData] = useState<RevenueBarItem[]>([]);
@@ -42,11 +46,12 @@ export function useReportsCenterData() {
         const [revRes, statusRes, taskerRes, usersRes] = await Promise.all([
           getRevenueReportBarData(dateFrom, dateTo),
           getBookingStatusPieData(dateFrom, dateTo),
-          getTaskerPerformanceBarData(),
+          getTaskerPerformanceBarData(dateFrom, dateTo),
           getUserRolesPieData(),
         ]);
         if (!ignore) {
           setRevenueData(revRes.items);
+          setGroupBy(revRes.groupBy);
           setRevenueTotals({
             totalRevenue: revRes.totalRevenue,
             totalCommission: revRes.totalCommission,
@@ -74,22 +79,25 @@ export function useReportsCenterData() {
   }, [dateFrom, dateTo, reloadTrigger]);
 
   const handleDateFromChange = useCallback((val: string) => {
+    if (!val) return;
     setIsLoading(true);
+    setActivePreset(null);
     setDateFrom(val);
   }, []);
 
   const handleDateToChange = useCallback((val: string) => {
+    if (!val) return;
     setIsLoading(true);
+    setActivePreset(null);
     setDateTo(val);
   }, []);
 
   const handleQuickPreset = useCallback((days: number) => {
     setIsLoading(true);
-    const end = new Date();
-    const start = new Date();
-    start.setDate(end.getDate() - days);
-    setDateFrom(start.toISOString().split('T')[0]);
-    setDateTo(end.toISOString().split('T')[0]);
+    const r = lastDaysRange(days);
+    setActivePreset(days);
+    setDateFrom(r.from);
+    setDateTo(r.to);
   }, []);
 
   const handleRetry = useCallback(() => {
@@ -118,6 +126,8 @@ export function useReportsCenterData() {
     setDateFrom: handleDateFromChange,
     dateTo,
     setDateTo: handleDateToChange,
+    activePreset,
+    groupBy,
     revenueData,
     revenueTotals,
     bookingStatusData,

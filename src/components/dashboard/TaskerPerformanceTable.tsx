@@ -34,8 +34,8 @@ export default function TaskerPerformanceTable({
           </thead>
           <tbody>
             {data.slice(0, 5).map((item, idx) => {
-              const displayName = item.taskerName ?? `Tasker #${item.taskerId ?? idx + 1}`;
-              const rating = item.ratingAverage ? item.ratingAverage.toFixed(1) : '5.0';
+              const displayName = item.taskerName || `Tasker #${item.taskerId}`;
+              const rating = item.ratingAverage ? item.ratingAverage.toFixed(1) : null;
               const violations = item.violationPoints ?? 0;
 
               return (
@@ -44,12 +44,18 @@ export default function TaskerPerformanceTable({
                   <td style={{ textAlign: 'center' }}>{item.completedCount}</td>
                   <td style={{ textAlign: 'center' }}>{item.cancelledCount}</td>
                   <td style={{ textAlign: 'center' }}>
-                    <span className="rating-badge">
-                      <Star size={13} fill="#FFB938" color="#FFB938" />
-                      <span>{rating}</span>
-                    </span>
+                    {rating ? (
+                      <span className="rating-badge">
+                        <Star size={13} fill="#FFB938" color="#FFB938" />
+                        <span>{rating}</span>
+                      </span>
+                    ) : (
+                      <span className="text-muted">Chưa có</span>
+                    )}
                   </td>
-                  <td style={{ textAlign: 'center' }}>{violations}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <span className={violations > 0 ? 'text-danger font-medium' : 'text-muted'}>{violations}</span>
+                  </td>
                 </tr>
               );
             })}

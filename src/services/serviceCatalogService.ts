@@ -26,7 +26,8 @@ export async function getServiceCategories(
   const { data } = await apiClient.get<ServiceCategoryResponse[]>(
     '/servicecategories',
     {
-      params: keyword ? { keyword } : undefined,
+      // Admin thấy cả dịch vụ đã ẩn (xóa mềm) để khôi phục
+      params: { keyword: keyword || undefined, includeInactive: true },
     },
   );
   return data;
@@ -90,4 +91,18 @@ export async function deleteServiceCategory(id: number): Promise<void> {
   }
 
   await apiClient.delete(`/servicecategories/${id}`);
+}
+
+// US09 - khôi phục dịch vụ đã ẩn
+export async function restoreServiceCategory(id: number): Promise<void> {
+  if (isMockEnabled) {
+    const index = mockServiceCategories.findIndex((s) => s.id === id);
+    if (index !== -1) {
+      mockServiceCategories[index].isActive = true;
+    }
+    await delayMock(null);
+    return;
+  }
+
+  await apiClient.put(`/servicecategories/${id}/restore`);
 }

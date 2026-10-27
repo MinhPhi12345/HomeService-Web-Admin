@@ -1,3 +1,5 @@
+import type { Workbook } from 'exceljs';
+
 export interface ExcelColumn<T> {
   header: string;
   key: keyof T | string;
@@ -21,18 +23,57 @@ function getExportDateString(): string {
   return `${d}-${m}-${y}`;
 }
 
+export interface ExcelSheet<T> {
+  sheetName: string;
+  columns: ExcelColumn<T>[];
+  data: T[];
+  /** Dòng tiêu đề phía trên bảng (vd: tên báo cáo, khoảng thời gian) */
+  title?: string;
+}
+
 export async function exportToExcel<T>({
   fileNamePrefix,
   sheetName = 'Dữ liệu',
   columns,
   data,
 }: ExportToExcelOptions<T>): Promise<void> {
+  await exportWorkbook(fileNamePrefix, [{ sheetName, columns, data }]);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyExcelSheet = ExcelSheet<any>;
+
+/** Xuất 1 file Excel gồm nhiều sheet (mỗi sheet có cột STT, định dạng tiền / số). */
+export async function exportWorkbook(fileNamePrefix: string, sheets: AnyExcelSheet[]): Promise<void> {
   const ExcelJS = (await import('exceljs')).default;
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'HomeService';
   workbook.created = new Date();
 
-  const worksheet = workbook.addWorksheet(sheetName, {
+  for (const sheet of sheets) {
+    addSheet(workbook, sheet);
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+
+  const dateSuffix = getExportDateString();
+  const fileName = `${fileNamePrefix}_${dateSuffix}.xlsx`;
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function addSheet<T>(workbook: Workbook, { sheetName, columns, data }: ExcelSheet<T>) {
+  const worksheet = workbook.addWorksheet(sheetName.slice(0, 31), {
     views: [{ state: 'frozen', ySplit: 1 }],
   });
 
@@ -93,21 +134,4 @@ export async function exportToExcel<T>({
     const sttCell = row.getCell(1);
     sttCell.alignment = { horizontal: 'center', vertical: 'middle' };
   });
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  });
-
-  const dateSuffix = getExportDateString();
-  const fileName = `${fileNamePrefix}_${dateSuffix}.xlsx`;
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }

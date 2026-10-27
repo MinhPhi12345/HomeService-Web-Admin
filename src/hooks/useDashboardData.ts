@@ -10,6 +10,7 @@ import type {
   TaskerPerformanceItem,
 } from '../types';
 import { getErrorMessage } from '../utils/errorHandler';
+import { fillSeries, lastDaysRange, pickGroupBy, toRangeParams } from '../utils/dateRange';
 
 export function useDashboardData() {
   const [days, setDays] = useState<number>(30);
@@ -19,28 +20,26 @@ export function useDashboardData() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadTrigger, setReloadTrigger] = useState<number>(0);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let ignore = false;
-
-    const to = new Date();
-    const from = new Date();
-    from.setDate(from.getDate() - days);
-
-    const fromIso = from.toISOString();
-    const toIso = to.toISOString();
+    const range = lastDaysRange(days);
+    const groupBy = pickGroupBy(range.from, range.to);
+    const { from, to } = toRangeParams(range.from, range.to);
 
     Promise.all([
-      getRevenueReport(fromIso, toIso),
-      getBookingsSummary(fromIso, toIso),
-      getTaskerPerformance(),
+      getRevenueReport(from, to, groupBy),
+      getBookingsSummary(from, to),
+      getTaskerPerformance(from, to),
     ])
       .then(([revData, summaryData, taskerData]) => {
         if (!ignore) {
-          setRevenueReport(revData);
+          setRevenueReport({ ...revData, series: fillSeries(revData.series, range.from, range.to, groupBy) });
           setBookingsSummary(summaryData);
           setTaskerPerformance(taskerData);
           setError(null);
+          setUpdatedAt(new Date());
           setIsLoading(false);
         }
       })
@@ -73,6 +72,7 @@ export function useDashboardData() {
     taskerPerformance,
     isLoading,
     error,
+    updatedAt,
     onFilterChange: handleFilterChange,
     onRetry: handleRetry,
   };

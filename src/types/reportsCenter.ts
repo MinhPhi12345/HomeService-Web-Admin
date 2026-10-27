@@ -16,14 +16,15 @@ export interface ReportMetaCard {
 }
 
 export interface RevenueBarItem {
-  period: string;
+  period: string; // khóa kỳ từ Backend: "2026-10-16" | "2026-10" | "2026"
+  label: string; // hiển thị: "16/10", "T10/2026"…
   revenue: number;
   commission: number;
   orderCount: number;
 }
 
 export interface BookingStatusPieItem {
-  status: string;
+  status: number;
   label: string;
   count: number;
   percentage: number;
@@ -35,9 +36,12 @@ export interface TaskerPerformanceBarItem {
   taskerName: string;
   completedCount: number;
   cancelledCount: number;
-  rating: number;
+  rating: number | null;
   violationPoints: number;
   completionRate: number;
+  disputeCount: number;
+  acceptanceRate: number | null;
+  totalEarnings: number;
 }
 
 export interface UserRolePieItem {
@@ -68,7 +72,11 @@ export interface ReportDetailPayload {
   summaryStats: ReportDetailStat[];
   columns: ReportDetailColumn[];
   rows: Record<string, string | number>[];
-  isLimitedApiNotice?: boolean;
+  /** Tải danh sách bản ghi chi tiết từ API khi mở cửa sổ */
+  loadRows?: () => Promise<Record<string, string | number>[]>;
+  /** Tên file khi xuất Excel danh sách chi tiết */
+  exportName?: string;
+  emptyText?: string;
 }
 
 export interface PrintSlipPayload {

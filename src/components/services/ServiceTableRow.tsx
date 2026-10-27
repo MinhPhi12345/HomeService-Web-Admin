@@ -1,4 +1,4 @@
-import { Edit3, Trash2, Wrench } from 'lucide-react';
+import { Edit3, RotateCcw, Trash2, Wrench } from 'lucide-react';
 import type { ServiceCategoryResponse } from '../../types';
 import { formatVnd, getImageUrl } from '../../utils/formatters';
 import Badge from '../common/Badge';
@@ -9,6 +9,7 @@ interface ServiceTableRowProps {
   isSelected: boolean;
   onEdit: (item: ServiceCategoryResponse) => void;
   onDelete: (item: ServiceCategoryResponse) => void;
+  onRestore: (item: ServiceCategoryResponse) => void;
 }
 
 export default function ServiceTableRow({
@@ -17,11 +18,12 @@ export default function ServiceTableRow({
   isSelected,
   onEdit,
   onDelete,
+  onRestore,
 }: ServiceTableRowProps) {
   const iconSrc = item.iconUrl ? getImageUrl(item.iconUrl) : '';
 
   return (
-    <tr className={isSelected ? 'row-selected' : ''}>
+    <tr className={`${isSelected ? 'row-selected' : ''} ${item.isActive ? '' : 'row-inactive'}`}>
       <td style={{ textAlign: 'center', color: 'var(--ink-400)' }}>{stt}</td>
       <td className="font-medium">
         <div className="service-name-cell">
@@ -39,7 +41,7 @@ export default function ServiceTableRow({
       <td>{item.unit}</td>
       <td>
         <Badge variant={item.isActive ? 'mint' : 'rose'}>
-          {item.isActive ? 'Đang bật' : 'Đã ẩn'}
+          {item.isActive ? 'Đang hoạt động' : 'Đã ẩn'}
         </Badge>
       </td>
       <td className="text-right">
@@ -52,14 +54,25 @@ export default function ServiceTableRow({
           >
             <Edit3 size={15} />
           </button>
-          <button
-            type="button"
-            className="action-btn delete-btn"
-            title="Xóa"
-            onClick={() => onDelete(item)}
-          >
-            <Trash2 size={15} />
-          </button>
+          {item.isActive ? (
+            <button
+              type="button"
+              className="action-btn delete-btn"
+              title="Xóa (ẩn dịch vụ)"
+              onClick={() => onDelete(item)}
+            >
+              <Trash2 size={15} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="action-btn restore-btn"
+              title="Khôi phục dịch vụ"
+              onClick={() => onRestore(item)}
+            >
+              <RotateCcw size={15} />
+            </button>
+          )}
         </div>
       </td>
     </tr>

@@ -4,9 +4,10 @@ import { REPORT_META_CARDS } from '../../utils/reportsCenterConstants';
 
 interface ReportsCenterCardsProps {
   onSelectReport: (key: ReportKey) => void;
+  highlights: Partial<Record<ReportKey, string>>;
 }
 
-export default function ReportsCenterCards({ onSelectReport }: ReportsCenterCardsProps) {
+export default function ReportsCenterCards({ onSelectReport, highlights }: ReportsCenterCardsProps) {
   const getIcon = (key: ReportKey) => {
     switch (key) {
       case 'revenue':
@@ -35,7 +36,7 @@ export default function ReportsCenterCards({ onSelectReport }: ReportsCenterCard
           <div className="report-card-footer">
             <div className="report-card-stat">
               <span className="report-stat-label">{card.highlightLabel}</span>
-              <span className="report-stat-val">{card.highlightValue}</span>
+              <span className="report-stat-val">{highlights[card.key] ?? card.highlightValue}</span>
             </div>
 
             <button

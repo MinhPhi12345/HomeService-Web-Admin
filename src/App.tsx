@@ -5,6 +5,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import { ToastProvider } from './components/common/Toast';
 import Loading from './components/common/Loading';
 import './App.css';
+import './assets/adminPages.css';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));

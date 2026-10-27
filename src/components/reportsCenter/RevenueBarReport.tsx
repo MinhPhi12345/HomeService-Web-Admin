@@ -8,53 +8,38 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { ReportDetailPayload, RevenueBarItem } from '../../types/reportsCenter';
+import type { RevenueBarItem } from '../../types/reportsCenter';
+import type { RevenueGroupBy } from '../../types';
+import { formatPeriod, groupByLabel } from '../../utils/dateRange';
+import { compactVnd } from '../dashboard/DailyRevenueBarChart';
 import { formatVnd } from '../../utils/formatters';
 import { REPORT_CHART_COLORS } from '../../utils/reportsCenterConstants';
-import { mockRevenueOrdersDetail } from '../../services/mock/mockReportsCenter';
 import EmptyState from '../common/EmptyState';
 
 interface RevenueBarReportProps {
   items: RevenueBarItem[];
+  groupBy: RevenueGroupBy;
   totals: { totalRevenue: number; totalCommission: number; transactionCount: number };
-  onSelectDetail: (payload: ReportDetailPayload) => void;
+  onSelect: (item: RevenueBarItem) => void;
 }
 
-export default function RevenueBarReport({ items, totals, onSelectDetail }: RevenueBarReportProps) {
-  if (!items || items.length === 0) {
-    return <EmptyState title="Chưa có dữ liệu doanh thu trong khoảng thời gian này." />;
+export default function RevenueBarReport({ items, groupBy, totals, onSelect }: RevenueBarReportProps) {
+  if (!items || items.every((i) => i.orderCount === 0)) {
+    return <EmptyState title="Chưa có doanh thu trong khoảng thời gian này." />;
   }
 
   const handleOpenDetail = (item: RevenueBarItem) => {
-    onSelectDetail({
-      reportKey: 'revenue',
-      title: `Chi tiết doanh thu chu kỳ ${item.period}`,
-      subtitle: `Doanh thu: ${formatVnd(item.revenue)} | Hoa hồng nền tảng: ${formatVnd(item.commission)} (${item.orderCount} đơn)`,
-      summaryStats: [
-        { label: 'Tổng doanh thu', value: formatVnd(item.revenue) },
-        { label: 'Hoa hồng nền tảng', value: formatVnd(item.commission) },
-        { label: 'Số giao dịch', value: `${item.orderCount} đơn` },
-      ],
-      columns: [
-        { header: 'Mã đơn', key: 'orderCode' },
-        { header: 'Khách hàng', key: 'customer' },
-        { header: 'Dịch vụ', key: 'service' },
-        { header: 'Giá trị đơn', key: 'amount', format: 'currency' },
-        { header: 'Hoa hồng trích', key: 'commission', format: 'currency' },
-        { header: 'Địa chỉ', key: 'address' },
-      ],
-      rows: mockRevenueOrdersDetail,
-      isLimitedApiNotice: import.meta.env.VITE_USE_MOCK !== 'true',
-    });
+    if (item.orderCount > 0) onSelect(item);
   };
+  const tableRows = items.filter((i) => i.orderCount > 0);
 
   return (
     <div className="report-view-wrapper">
       <div className="card report-chart-card">
         <div className="chart-header-row">
           <div>
-            <h3 className="chart-title">Biểu đồ Doanh thu & Hoa hồng nền tảng (triệu VNĐ)</h3>
-            <p className="chart-subtitle">Nhấp vào từng cột để xem chi tiết các giao dịch trong chu kỳ</p>
+            <h3 className="chart-title">Doanh thu & hoa hồng nền tảng theo {groupByLabel(groupBy)} (Bar Chart)</h3>
+            <p className="chart-subtitle">Nhấn vào từng cột để xem danh sách giao dịch của kỳ đó</p>
           </div>
           <div className="chart-totals-badge">
             <span>Tổng: <strong>{formatVnd(totals.totalRevenue)}</strong></span>
@@ -65,35 +50,41 @@ export default function RevenueBarReport({ items, totals, onSelectDetail }: Reve
         <div style={{ width: '100%', height: 320 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={items.map((i) => ({ ...i, revMil: i.revenue / 1000000, comMil: i.commission / 1000000 }))}
-              margin={{ top: 20, right: 20, left: 0, bottom: 8 }}
+              data={items}
+              margin={{ top: 20, right: 16, left: 4, bottom: 8 }}
               onClick={(e) => {
-                const payload = (e as any)?.activePayload?.[0]?.payload as RevenueBarItem | undefined;
-                if (payload) handleOpenDetail(payload);
+                const idx = Number((e as { activeTooltipIndex?: number | string } | null)?.activeTooltipIndex);
+                if (Number.isFinite(idx) && items[idx]) handleOpenDetail(items[idx]);
               }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={REPORT_CHART_COLORS.gridLine} />
-              <XAxis dataKey="period" stroke={REPORT_CHART_COLORS.gray} tick={{ fontSize: 12 }} />
-              <YAxis stroke={REPORT_CHART_COLORS.gray} tick={{ fontSize: 12 }} />
+              <XAxis dataKey="label" stroke={REPORT_CHART_COLORS.gray} tick={{ fontSize: 11 }} interval="preserveStartEnd" minTickGap={12} />
+              <YAxis stroke={REPORT_CHART_COLORS.gray} tick={{ fontSize: 11 }} tickFormatter={compactVnd} width={52} />
               <Tooltip
-                formatter={(val: any) => [`${Number(val ?? 0).toFixed(2)} tr đ`, '']}
+                cursor={{ fill: 'rgba(20,184,166,0.08)' }}
+                labelFormatter={(_, payload) => {
+                  const p = payload?.[0]?.payload as RevenueBarItem | undefined;
+                  return p ? `${formatPeriod(p.period, true)} · ${p.orderCount} giao dịch` : '';
+                }}
+                formatter={(val, name) => [formatVnd(Number(val ?? 0)), name === 'revenue' ? 'Doanh thu' : 'Hoa hồng']}
                 contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: 8, border: '1px solid #D9E3E6' }}
               />
-              <Legend formatter={(val) => (val === 'revMil' ? 'Doanh thu (triệu đ)' : 'Hoa hồng (triệu đ)')} />
-              <Bar dataKey="revMil" fill={REPORT_CHART_COLORS.primary} radius={[4, 4, 0, 0]} cursor="pointer" />
-              <Bar dataKey="comMil" fill={REPORT_CHART_COLORS.accent} radius={[4, 4, 0, 0]} cursor="pointer" />
+              <Legend formatter={(val) => (val === 'revenue' ? 'Doanh thu' : 'Hoa hồng')} />
+              <Bar dataKey="revenue" fill={REPORT_CHART_COLORS.primary} radius={[4, 4, 0, 0]} maxBarSize={26} cursor="pointer" />
+              <Bar dataKey="commission" fill={REPORT_CHART_COLORS.accent} radius={[4, 4, 0, 0]} maxBarSize={26} cursor="pointer" />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="card report-table-card">
-        <h4 className="table-card-title">Bảng tổng hợp doanh thu theo chu kỳ</h4>
+        <h4 className="table-card-title">Bảng tổng hợp doanh thu theo {groupByLabel(groupBy)} ({totals.transactionCount} giao dịch)</h4>
         <div className="table-responsive">
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Chu kỳ thời gian</th>
+                <th style={{ width: 56, textAlign: 'center' }}>STT</th>
+                <th>Kỳ</th>
                 <th style={{ textAlign: 'right' }}>Doanh thu</th>
                 <th style={{ textAlign: 'right' }}>Hoa hồng nền tảng</th>
                 <th style={{ textAlign: 'center' }}>Số lượng đơn</th>
@@ -101,9 +92,10 @@ export default function RevenueBarReport({ items, totals, onSelectDetail }: Reve
               </tr>
             </thead>
             <tbody>
-              {items.map((it, idx) => (
-                <tr key={idx} onClick={() => handleOpenDetail(it)} style={{ cursor: 'pointer' }}>
-                  <td className="font-medium">{it.period}</td>
+              {tableRows.map((it, idx) => (
+                <tr key={it.period} onClick={() => handleOpenDetail(it)} style={{ cursor: 'pointer' }}>
+                  <td style={{ textAlign: 'center', color: 'var(--ink-400)' }}>{idx + 1}</td>
+                  <td className="font-medium">{formatPeriod(it.period, true)}</td>
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatVnd(it.revenue)}</td>
                   <td style={{ textAlign: 'right', color: 'var(--color-primary-dark)' }}>{formatVnd(it.commission)}</td>
                   <td style={{ textAlign: 'center' }}>{it.orderCount}</td>
