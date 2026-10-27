@@ -6,6 +6,7 @@ import {
   PieChart,
   ClipboardList,
   Flame,
+  House,
   Layers,
   LayoutDashboard,
   ShieldCheck,
@@ -51,11 +52,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <div className="sidebar-brand-icon">
-              <ShieldCheck size={24} />
+              <House size={19} strokeWidth={2.4} />
             </div>
             <div className="sidebar-brand-text">
-              <span className="sidebar-brand-title">HomeService</span>
-              <span className="sidebar-brand-subtitle">Quản trị viên</span>
+              <span className="sidebar-brand-title">
+                Home<b>Service</b>
+              </span>
+              <span className="sidebar-brand-subtitle">
+                <ShieldCheck size={11} strokeWidth={2.6} /> Trang quản trị
+              </span>
             </div>
           </div>
           <button
