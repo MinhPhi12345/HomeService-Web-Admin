@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Download, Flag, Loader2, Search, Star, Trash2 } from 'lucide-react';
+import { CheckCircle2, Download, Eye, Flag, Loader2, Search, Star, Trash2 } from 'lucide-react';
 import type { ReviewResponse } from '../types';
 import { getFlaggedReviews, moderateReview } from '../services/reviewService';
 import { useAdminCounters } from '../context/useAdminCounters';
 import { useToast } from '../components/common/useToast';
 import { useDebounce } from '../hooks/useDebounce';
 import Modal from '../components/common/Modal';
+import ReviewCaseModal from '../components/reviews/ReviewCaseModal';
 import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import ErrorState from '../components/common/ErrorState';
@@ -54,6 +55,7 @@ export default function FlaggedReviewsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [action, setAction] = useState<Action | null>(null);
+  const [caseReview, setCaseReview] = useState<ReviewResponse | null>(null);
   const [working, setWorking] = useState(false);
   const [note, setNote] = useState('');
   const [noteError, setNoteError] = useState<string | null>(null);
@@ -234,7 +236,11 @@ export default function FlaggedReviewsPage() {
                 {rows.map((r, idx) => (
                   <tr key={r.id}>
                     <td style={{ textAlign: 'center', color: 'var(--ink-400)' }}>{(safePage - 1) * pageSize + idx + 1}</td>
-                    <td className="font-medium">#{r.bookingId}</td>
+                    <td>
+                      <button type="button" className="case-link" onClick={() => setCaseReview(r)} title="Xem chi tiết đơn">
+                        #{r.bookingId}
+                      </button>
+                    </td>
                     <td>
                       <div className="font-medium">{r.reviewerName}</div>
                       <div className="cell-sub">→ {r.revieweeName}</div>
@@ -258,13 +264,18 @@ export default function FlaggedReviewsPage() {
                       )}
                     </td>
                     <td>
-                      <div className="action-row">
+                      <div className="action-row action-row--stack">
+                        <button type="button" className="btn-action-pill btn-view" onClick={() => setCaseReview(r)}>
+                          <Eye size={14} /> Xem đơn
+                        </button>
+                        <div className="action-row">
                         <button type="button" className="btn-action-pill btn-unlock" onClick={() => openAction('keep', r)}>
                           <CheckCircle2 size={14} /> Giữ lại
                         </button>
                         <button type="button" className="btn-action-pill btn-lock" onClick={() => openAction('delete', r)}>
                           <Trash2 size={14} /> Xóa
                         </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -288,11 +299,23 @@ export default function FlaggedReviewsPage() {
 
       <div className="admin-notice-box">
         <span>
-          ⓘ Đối chiếu lý do báo cáo với nội dung đánh giá và chi tiết đơn trước khi quyết định. “Giữ lại” gỡ cờ, đánh giá tiếp tục
+          ⓘ Bấm “Xem đơn” (hoặc mã đơn) để mở hồ sơ phân xử: chi tiết đơn, ảnh trước/sau, đánh giá của cả hai bên, khiếu nại liên quan và uy tín của
+          hai bên. Đối chiếu lý do báo cáo với các thông tin đó trước khi quyết định. “Giữ lại” gỡ cờ, đánh giá tiếp tục
           hiển thị và không bị báo cáo lại. “Xóa” gỡ đánh giá vi phạm (sai sự thật, ngôn từ xúc phạm, thông tin cá nhân, spam), tính lại
           điểm trung bình và người viết không thể đánh giá lại đơn đó (mỗi đơn chỉ đánh giá 1 lần). Lý do của bạn được gửi cho các bên và ghi vào Nhật ký kiểm toán.
         </span>
       </div>
+
+      {caseReview && (
+        <ReviewCaseModal
+          review={caseReview}
+          onClose={() => setCaseReview(null)}
+          onModerate={(kind, review) => {
+            setCaseReview(null);
+            openAction(kind, review);
+          }}
+        />
+      )}
 
       <Modal
         isOpen={Boolean(action)}
