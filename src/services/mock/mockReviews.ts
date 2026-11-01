@@ -12,5 +12,8 @@ export const mockFlaggedReviews: ReviewResponse[] = [
     isFlagged: true,
     createdAt: '2026-10-22T08:30:00.000Z',
     revieweeName: 'Trần Thị Mai',
+    reportReason: 'Tôi làm đúng giờ, khách đã nghiệm thu và khen tại chỗ. Nhận xét này sai sự thật.',
+    reportedByName: 'Trần Thị Mai',
+    reportedAt: '2026-10-22T10:05:00.000Z',
   },
 ];

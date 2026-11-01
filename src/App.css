@@ -755,6 +755,115 @@
   margin-top: 8px;
 }
 
+/* ---------- Mã OTP qua email (quên / đổi mật khẩu) ---------- */
+.login-forgot-link {
+  display: block;
+  margin: 14px auto 0;
+}
+
+.otp-link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.otp-link-btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.otp-link-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.otp-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-bottom: 14px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.otp-panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.otp-panel-lead {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 18px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.otp-info-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 13px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.otp-info-alert svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.otp-group {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.otp-cell {
+  height: 48px;
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  outline: none;
+}
+
+.otp-cell:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+}
+
+.otp-group-invalid .otp-cell {
+  border-color: var(--color-danger);
+}
+
+.otp-resend-line {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-align: left;
+}
+
 .error-page-container {
   min-height: 100vh;
   display: flex;

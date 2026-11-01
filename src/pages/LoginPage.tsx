@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { AlertCircle, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { login } from '../services/authService';
 import { UserRole } from '../types';
 import { getErrorMessage } from '../utils/errorHandler';
 import Button from '../components/common/Button';
+import ForgotPasswordPanel from '../components/auth/ForgotPasswordPanel';
 
 // US02 - Đăng nhập (Admin)
 export default function LoginPage() {
@@ -22,6 +23,8 @@ export default function LoginPage() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<'login' | 'forgot'>('login');
+  const [notice, setNotice] = useState<string | null>(null);
 
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
@@ -80,6 +83,25 @@ export default function LoginPage() {
           <p className="login-subtitle">Hệ thống quản trị dịch vụ tại nhà</p>
         </div>
 
+        {mode === 'forgot' ? (
+          <ForgotPasswordPanel
+            initialEmail={email.trim()}
+            onBack={(message, resetEmail) => {
+              setMode('login');
+              setError(null);
+              setNotice(message ?? null);
+              if (resetEmail) setEmail(resetEmail);
+              setPassword('');
+            }}
+          />
+        ) : (
+        <>
+        {notice && !error && (
+          <div className="otp-info-alert" role="status">
+            <CheckCircle2 size={18} />
+            <span>{notice}</span>
+          </div>
+        )}
         {error && (
           <div className="login-error-alert" role="alert">
             <AlertCircle size={18} className="login-error-icon" />
@@ -143,7 +165,20 @@ export default function LoginPage() {
           >
             Đăng nhập
           </Button>
+          <button
+            type="button"
+            className="otp-link-btn login-forgot-link"
+            onClick={() => {
+              setError(null);
+              setNotice(null);
+              setMode('forgot');
+            }}
+          >
+            Quên mật khẩu?
+          </button>
         </form>
+        </>
+        )}
       </div>
     </div>
   );

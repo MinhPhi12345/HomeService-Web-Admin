@@ -298,7 +298,7 @@ export default function TaskerVerificationPage() {
         title={decision?.approve ? 'Duyệt hồ sơ Tasker?' : 'Từ chối hồ sơ Tasker?'}
         message={
           decision?.approve
-            ? `"${decision.tasker.fullName}" sẽ được kích hoạt và bắt đầu nhận đơn trong khu vực ${decision.tasker.workingArea ?? 'đã đăng ký'}.`
+            ? `"${decision.tasker.fullName}" sẽ được kích hoạt và bắt đầu nhận đơn quanh điểm làm việc (bán kính ${decision.tasker.serviceRadiusKm} km).`
             : `Hồ sơ của "${decision?.tasker.fullName}" sẽ bị từ chối. Tasker cần cập nhật lại thông tin để gửi duyệt lần nữa.`
         }
         confirmText={decision?.approve ? 'Duyệt' : 'Từ chối'}

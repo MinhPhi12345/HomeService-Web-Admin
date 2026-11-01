@@ -67,17 +67,3 @@ export const DISPUTE_RESOLUTION_LABELS: Record<DisputeResolution, string> = {
 };
 
 export const SERVICE_UNITS = ['giờ', 'lần', 'm²', 'buổi'] as const;
-
-export const WORKING_AREAS = [
-  'Quận 1',
-  'Quận 3',
-  'Quận 4',
-  'Quận 5',
-  'Quận 7',
-  'Quận 10',
-  'Bình Thạnh',
-  'Phú Nhuận',
-  'Gò Vấp',
-  'Tân Bình',
-  'Thủ Đức',
-] as const;

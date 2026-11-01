@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Bell, Flame, LogOut, Menu, UserCheck } from 'lucide-react';
+import { AlertTriangle, Bell, Flame, KeyRound, LogOut, Menu, UserCheck } from 'lucide-react';
 import { useAdminCounters } from '../../context/useAdminCounters';
 import { useAuth } from '../../context/useAuth';
 import { logoutApi } from '../../services/authService';
+import ChangePasswordModal from '../auth/ChangePasswordModal';
 import ConfirmDialog from '../common/ConfirmDialog';
 
 interface HeaderProps {
@@ -36,7 +37,7 @@ function buildPageMeta(path: string, counts: Counts, loaded: boolean): PageMeta 
       subtitle: n(counts.flaggedReviews, 'đánh giá chờ kiểm duyệt', 'Không có đánh giá nào bị báo cáo'),
     },
     '/revenue-report': { title: 'Báo cáo doanh thu', subtitle: 'Doanh thu, hoa hồng, tiền tạm giữ và hoàn tiền theo khoảng ngày' },
-    '/audit-logs': { title: 'Nhật ký kiểm toán', subtitle: 'Lịch sử giao dịch tiền và quyết định khiếu nại (chỉ đọc)' },
+    '/audit-logs': { title: 'Nhật ký kiểm toán', subtitle: 'Lịch sử giao dịch tiền, quyết định khiếu nại và kiểm duyệt đánh giá (chỉ đọc)' },
     '/reports': { title: 'Trung tâm báo cáo', subtitle: 'Biểu đồ tròn, biểu đồ cột – nhấn vào biểu đồ để xem chi tiết' },
     '/403': { title: 'Lỗi quyền truy cập', subtitle: 'Bạn không có quyền thực hiện thao tác này' },
   };
@@ -49,6 +50,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const navigate = useNavigate();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
   const { counts, loaded } = useAdminCounters();
   const [isBellOpen, setIsBellOpen] = useState(false);
@@ -145,6 +147,16 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
             )}
           </div>
 
+          <button
+            type="button"
+            className="header-icon-btn"
+            title="Đổi mật khẩu"
+            aria-label="Đổi mật khẩu"
+            onClick={() => setIsPasswordOpen(true)}
+          >
+            <KeyRound size={18} />
+          </button>
+
           <div
             className="header-user-badge"
             onClick={() => setIsConfirmOpen(true)}
@@ -161,6 +173,8 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
           </div>
         </div>
       </header>
+
+      <ChangePasswordModal isOpen={isPasswordOpen} onClose={() => setIsPasswordOpen(false)} />
 
       <ConfirmDialog
         isOpen={isConfirmOpen}

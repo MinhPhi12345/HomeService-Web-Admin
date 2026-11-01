@@ -515,3 +515,48 @@
   justify-content: center;
 }
 .report-card-top .badge { white-space: nowrap; }
+
+/* US27 – kiểm duyệt đánh giá: lý do báo cáo & hộp thoại ghi lý do quyết định */
+.report-reason { max-width: 360px; }
+.report-reason-by { display: flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--ink-900); }
+.report-reason-by span { font-weight: 400; color: var(--ink-400); }
+.report-reason p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-600); white-space: pre-line; }
+.moderation-dialog { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.moderation-quote { padding: 12px 14px; border-radius: 12px; background: var(--color-muted-bg); display: flex; flex-direction: column; gap: 6px; }
+.moderation-quote p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-900); white-space: pre-line; }
+.moderation-quote--report { background: var(--accent-100); }
+.moderation-quote-head { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-600); }
+.moderation-quote-head b { color: var(--ink-900); }
+.admin-table .stars + .review-comment { margin-top: 4px; }
+
+/* ---------- Hồ sơ phân xử đánh giá bị báo cáo ---------- */
+.btn-view { border: 1px solid var(--pastel-sky-text); color: var(--pastel-sky-text); }
+.btn-view:hover { background: var(--pastel-sky); }
+.case-link {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font-weight: 600; color: var(--primary-600); text-decoration: underline; text-underline-offset: 3px;
+}
+.case-link:hover { color: var(--primary-500); }
+.case-reviews { display: flex; flex-direction: column; gap: 10px; }
+.case-review { padding: 12px 14px; border: 1px solid var(--color-border); border-radius: 12px; background: #fff; }
+.case-review--flagged { border-color: #F5B5BC; background: #FFF7F8; }
+.detail-section > .case-review--flagged { margin-bottom: 10px; }
+.case-review-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--ink-600); }
+.case-review-head b { color: var(--ink-900); }
+.case-review-time { margin-left: auto; font-size: 12px; color: var(--ink-400); }
+.case-review p { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-900); white-space: pre-line; }
+.case-review-note { display: flex; align-items: flex-start; gap: 4px; margin-top: 6px; font-size: 12.5px; color: var(--ink-600); }
+.case-review-note svg { flex-shrink: 0; margin-top: 2px; }
+.case-profiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.case-profile { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--color-muted-bg); }
+.case-profile-title { font-size: 12px; color: var(--ink-400); }
+.case-profile strong { font-size: 14px; color: var(--ink-900); }
+.case-profile-role { font-size: 12.5px; color: var(--ink-600); }
+.case-profile-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 4px; font-size: 13px; color: var(--ink-900); }
+.case-profile-stats span { display: inline-flex; align-items: center; gap: 4px; }
+@media (max-width: 640px) {
+  .case-profiles { grid-template-columns: 1fr; }
+  .case-review-time { margin-left: 0; width: 100%; }
+}
+.action-row--stack { flex-direction: column; align-items: stretch; gap: 6px; }
+.action-row--stack > .btn-view { justify-content: center; }
