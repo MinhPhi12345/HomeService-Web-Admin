@@ -12,6 +12,8 @@ export const AUDIT_ACTION_LABELS: Record<string, { label: string; variant: Badge
   DisputeResolved: { label: 'Xử lý khiếu nại', variant: 'lilac' },
   WalletTopUp: { label: 'Nạp ví Tasker', variant: 'info' },
   WalletWithdraw: { label: 'Rút tiền ví Tasker', variant: 'neutral' },
+  ReviewKept: { label: 'Giữ lại đánh giá bị báo cáo', variant: 'sky' },
+  ReviewRemoved: { label: 'Gỡ đánh giá vi phạm', variant: 'rose' },
 };
 
 export function auditActionMeta(action: string) {

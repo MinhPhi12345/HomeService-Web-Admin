@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, Download, Loader2, Search, Star, Trash2 } from 'lucide-react';
+import { CheckCircle2, Download, Flag, Loader2, Search, Star, Trash2 } from 'lucide-react';
 import type { ReviewResponse } from '../types';
-import { deleteReview, getFlaggedReviews, keepReview } from '../services/reviewService';
+import { getFlaggedReviews, moderateReview } from '../services/reviewService';
 import { useAdminCounters } from '../context/useAdminCounters';
 import { useToast } from '../components/common/useToast';
 import { useDebounce } from '../hooks/useDebounce';
-import ConfirmDialog from '../components/common/ConfirmDialog';
+import Modal from '../components/common/Modal';
+import Button from '../components/common/Button';
 import EmptyState from '../components/common/EmptyState';
 import ErrorState from '../components/common/ErrorState';
 import Pagination from '../components/common/Pagination';
@@ -15,6 +16,9 @@ import { getErrorMessage } from '../utils/errorHandler';
 import { exportToExcel } from '../utils/excelExport';
 
 type Action = { kind: 'keep' | 'delete'; review: ReviewResponse };
+
+const NOTE_MIN = 10;
+const NOTE_MAX = 500;
 
 const RATING_FILTERS = [
   { value: 0, label: 'Tất cả' },
@@ -51,6 +55,8 @@ export default function FlaggedReviewsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [action, setAction] = useState<Action | null>(null);
   const [working, setWorking] = useState(false);
+  const [note, setNote] = useState('');
+  const [noteError, setNoteError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
@@ -84,6 +90,8 @@ export default function FlaggedReviewsPage() {
           normalize(r.reviewerName).includes(kw) ||
           normalize(r.revieweeName).includes(kw) ||
           normalize(r.comment ?? '').includes(kw) ||
+          normalize(r.reportReason ?? '').includes(kw) ||
+          normalize(r.reportedByName ?? '').includes(kw) ||
           String(r.bookingId) === kw,
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -93,22 +101,32 @@ export default function FlaggedReviewsPage() {
   const safePage = Math.min(page, totalPages);
   const rows = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
+  const openAction = (kind: Action['kind'], review: ReviewResponse) => {
+    setNote('');
+    setNoteError(null);
+    setAction({ kind, review });
+  };
+
   const doAction = async () => {
     if (!action) return;
+    const text = note.trim();
+    if (text.length < NOTE_MIN) {
+      setNoteError(`Vui lòng nhập lý do quyết định (ít nhất ${NOTE_MIN} ký tự).`);
+      return;
+    }
     setWorking(true);
     try {
-      if (action.kind === 'keep') {
-        await keepReview(action.review.id);
-        toast.success('Đã giữ lại đánh giá và gỡ cờ báo cáo.');
-      } else {
-        await deleteReview(action.review.id);
-        toast.success('Đã xóa đánh giá vi phạm. Điểm đánh giá được tính lại.');
-      }
+      await moderateReview(action.review.id, action.kind === 'delete', text);
+      toast.success(
+        action.kind === 'delete'
+          ? 'Đã gỡ đánh giá vi phạm và gửi lý do cho các bên. Điểm đánh giá được tính lại.'
+          : 'Đã giữ lại đánh giá và gửi lý do cho người báo cáo.',
+      );
       setItems((prev) => prev.filter((r) => r.id !== action.review.id));
       refreshCounters();
       setAction(null);
     } catch (err) {
-      toast.error(getErrorMessage(err));
+      setNoteError(getErrorMessage(err));
     } finally {
       setWorking(false);
     }
@@ -127,6 +145,9 @@ export default function FlaggedReviewsPage() {
           { header: 'Số sao', key: 'rating', width: 10, format: 'number' },
           { header: 'Nội dung', key: 'comment', width: 50 },
           { header: 'Ngày đánh giá', key: 'createdAt', width: 18, getValue: (r) => formatDateTime(r.createdAt) },
+          { header: 'Người báo cáo', key: 'reportedByName', width: 24, getValue: (r) => r.reportedByName ?? '' },
+          { header: 'Lý do báo cáo', key: 'reportReason', width: 50, getValue: (r) => r.reportReason ?? '' },
+          { header: 'Thời gian báo cáo', key: 'reportedAt', width: 18, getValue: (r) => (r.reportedAt ? formatDateTime(r.reportedAt) : '') },
         ],
         data: filtered,
       });
@@ -204,9 +225,8 @@ export default function FlaggedReviewsPage() {
                   <th style={{ width: 56, textAlign: 'center' }}>STT</th>
                   <th>Đơn</th>
                   <th>Người đánh giá → Người được đánh giá</th>
-                  <th>Số sao</th>
-                  <th style={{ minWidth: 240 }}>Nội dung</th>
-                  <th>Ngày</th>
+                  <th style={{ minWidth: 220 }}>Đánh giá</th>
+                  <th style={{ minWidth: 260 }}>Lý do báo cáo</th>
                   <th style={{ textAlign: 'center' }}>Kiểm duyệt</th>
                 </tr>
               </thead>
@@ -221,17 +241,28 @@ export default function FlaggedReviewsPage() {
                     </td>
                     <td>
                       <Stars value={r.rating} />
+                      <p className="review-comment">{r.comment?.trim() ? `“${r.comment}”` : <em className="text-muted">Không có nội dung</em>}</p>
+                      <div className="cell-sub">{formatDateTime(r.createdAt)}</div>
                     </td>
                     <td>
-                      <p className="review-comment">{r.comment?.trim() ? `“${r.comment}”` : <em className="text-muted">Không có nội dung</em>}</p>
+                      {r.reportReason ? (
+                        <div className="report-reason">
+                          <div className="report-reason-by">
+                            <Flag size={13} /> {r.reportedByName ?? 'Người dùng'}
+                            {r.reportedAt && <span> · {formatDateTime(r.reportedAt)}</span>}
+                          </div>
+                          <p>{r.reportReason}</p>
+                        </div>
+                      ) : (
+                        <em className="text-muted">Không ghi lý do (báo cáo từ phiên bản cũ)</em>
+                      )}
                     </td>
-                    <td>{formatDateTime(r.createdAt)}</td>
                     <td>
                       <div className="action-row">
-                        <button type="button" className="btn-action-pill btn-unlock" onClick={() => setAction({ kind: 'keep', review: r })}>
+                        <button type="button" className="btn-action-pill btn-unlock" onClick={() => openAction('keep', r)}>
                           <CheckCircle2 size={14} /> Giữ lại
                         </button>
-                        <button type="button" className="btn-action-pill btn-lock" onClick={() => setAction({ kind: 'delete', review: r })}>
+                        <button type="button" className="btn-action-pill btn-lock" onClick={() => openAction('delete', r)}>
                           <Trash2 size={14} /> Xóa
                         </button>
                       </div>
@@ -257,25 +288,75 @@ export default function FlaggedReviewsPage() {
 
       <div className="admin-notice-box">
         <span>
-          ⓘ “Giữ lại” gỡ cờ báo cáo và đánh giá tiếp tục hiển thị. “Xóa” gỡ bỏ vĩnh viễn đánh giá vi phạm (ngôn từ xúc phạm, thông tin
-          cá nhân, spam) và tính lại điểm đánh giá trung bình.
+          ⓘ Đối chiếu lý do báo cáo với nội dung đánh giá và chi tiết đơn trước khi quyết định. “Giữ lại” gỡ cờ, đánh giá tiếp tục
+          hiển thị và không bị báo cáo lại. “Xóa” gỡ đánh giá vi phạm (sai sự thật, ngôn từ xúc phạm, thông tin cá nhân, spam), tính lại
+          điểm trung bình và người viết không thể đánh giá lại đơn đó (mỗi đơn chỉ đánh giá 1 lần). Lý do của bạn được gửi cho các bên và ghi vào Nhật ký kiểm toán.
         </span>
       </div>
 
-      <ConfirmDialog
+      <Modal
         isOpen={Boolean(action)}
-        title={action?.kind === 'delete' ? 'Xóa đánh giá vi phạm?' : 'Giữ lại đánh giá?'}
-        message={
-          action?.kind === 'delete'
-            ? `Đánh giá ${action.review.rating}★ của "${action.review.reviewerName}" cho "${action.review.revieweeName}" sẽ bị xóa vĩnh viễn. Thao tác không thể hoàn tác.`
-            : `Đánh giá của "${action?.review.reviewerName}" sẽ được gỡ cờ báo cáo và tiếp tục hiển thị công khai.`
+        onClose={() => !working && setAction(null)}
+        title={action?.kind === 'delete' ? 'Gỡ đánh giá vi phạm' : 'Giữ lại đánh giá'}
+        maxWidth={560}
+        footer={
+          <div className="confirm-dialog-actions">
+            <Button type="button" variant="outline" onClick={() => setAction(null)} disabled={working}>
+              Hủy
+            </Button>
+            <Button type="button" variant={action?.kind === 'delete' ? 'danger' : 'primary'} onClick={doAction} loading={working}>
+              {action?.kind === 'delete' ? 'Gỡ đánh giá' : 'Giữ lại'}
+            </Button>
+          </div>
         }
-        confirmText={action?.kind === 'delete' ? 'Xóa đánh giá' : 'Giữ lại'}
-        confirmVariant={action?.kind === 'delete' ? 'danger' : 'primary'}
-        isLoading={working}
-        onConfirm={doAction}
-        onCancel={() => setAction(null)}
-      />
+      >
+        {action && (
+          <div className="moderation-dialog">
+            <div className="moderation-quote">
+              <div className="moderation-quote-head">
+                <b>{action.review.reviewerName}</b> → {action.review.revieweeName} · Đơn #{action.review.bookingId}
+              </div>
+              <Stars value={action.review.rating} />
+              <p>{action.review.comment?.trim() ? `“${action.review.comment}”` : 'Không có nội dung'}</p>
+            </div>
+            <div className="moderation-quote moderation-quote--report">
+              <div className="moderation-quote-head">
+                <Flag size={13} /> Báo cáo của <b>{action.review.reportedByName ?? 'người dùng'}</b>
+              </div>
+              <p>{action.review.reportReason ?? 'Không ghi lý do (báo cáo từ phiên bản cũ).'}</p>
+            </div>
+            <div className="form-field">
+              <label htmlFor="moderation-note">
+                Lý do quyết định <span className="required-star">*</span>
+              </label>
+              <textarea
+                id="moderation-note"
+                rows={3}
+                maxLength={NOTE_MAX}
+                value={note}
+                autoFocus
+                placeholder={
+                  action.kind === 'delete'
+                    ? 'VD: Ảnh check-out cho thấy công việc đã hoàn thành đủ hạng mục, nhận xét sai sự thật.'
+                    : 'VD: Đối chiếu ảnh trước/sau, nhận xét phản ánh đúng việc Tasker đến trễ 30 phút.'
+                }
+                onChange={(e) => {
+                  setNote(e.target.value);
+                  setNoteError(null);
+                }}
+                className="form-input"
+              />
+              <small className="field-hint">
+                {note.trim().length}/{NOTE_MAX} ký tự (tối thiểu {NOTE_MIN}).{' '}
+                {action.kind === 'delete'
+                  ? 'Gửi cho người viết đánh giá và người báo cáo. Người viết không thể đánh giá lại đơn này.'
+                  : 'Gửi cho người báo cáo; đánh giá sẽ không bị báo cáo lại.'}
+              </small>
+            </div>
+            {noteError && <div className="form-error-box">{noteError}</div>}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
