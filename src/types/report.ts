@@ -23,6 +23,10 @@ export interface RevenueReport {
   taskerPayout: number;
   groupBy: RevenueGroupBy;
   series: RevenuePoint[];
+  // FR-32 / FR-31 – chi phí khuyến mãi (nền tảng bù mã giảm giá) và tiền thưởng Tasker trong kỳ
+  promotionCost?: number;
+  taskerBonusCost?: number;
+  netRevenue?: number; // = hoa hồng − chi phí khuyến mãi − thưởng Tasker
 }
 
 // GET /api/reports/bookings-summary – status là SỐ (enum BookingStatus)

@@ -36,6 +36,8 @@ function buildPageMeta(path: string, counts: Counts, loaded: boolean): PageMeta 
       title: 'Đánh giá bị báo cáo',
       subtitle: n(counts.flaggedReviews, 'đánh giá chờ kiểm duyệt', 'Không có đánh giá nào bị báo cáo'),
     },
+    '/tasker-awards': { title: 'Tasker xuất sắc tháng', subtitle: 'Chốt bảng xếp hạng, duyệt và trao thưởng, mời nhận quà, xuất Excel' },
+    '/promotions': { title: 'Khuyến mãi', subtitle: 'Mã giảm giá cho khách hàng, quà tặng tự động và chi phí khuyến mãi' },
     '/revenue-report': { title: 'Báo cáo doanh thu', subtitle: 'Doanh thu, hoa hồng, tiền tạm giữ và hoàn tiền theo khoảng ngày' },
     '/audit-logs': { title: 'Nhật ký kiểm toán', subtitle: 'Lịch sử giao dịch tiền, quyết định khiếu nại và kiểm duyệt đánh giá (chỉ đọc)' },
     '/reports': { title: 'Trung tâm báo cáo', subtitle: 'Biểu đồ tròn, biểu đồ cột – nhấn vào biểu đồ để xem chi tiết' },
