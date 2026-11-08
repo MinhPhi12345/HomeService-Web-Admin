@@ -6,3 +6,4 @@ export * from './tasker';
 export * from './dispute';
 export * from './review';
 export * from './report';
+export * from './rewards';

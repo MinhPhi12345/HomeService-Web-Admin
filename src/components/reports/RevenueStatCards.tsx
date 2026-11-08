@@ -1,4 +1,4 @@
-import { Banknote, Coins, CreditCard, Hourglass, Layers, RotateCcw, Wallet, HandCoins } from 'lucide-react';
+import { Banknote, Coins, CreditCard, Gift, Hourglass, Layers, RotateCcw, Trophy, Wallet, HandCoins, TrendingUp } from 'lucide-react';
 import type { RevenueReport } from '../../types';
 import { formatVnd } from '../../utils/formatters';
 
@@ -32,6 +32,14 @@ export default function RevenueStatCards({ report }: RevenueStatCardsProps) {
       variant: 'lilac',
     },
     { title: 'Đã hoàn cho khách', value: formatVnd(report.refundedAmount), icon: <RotateCcw size={20} />, variant: 'rose' },
+    { title: 'Chi phí khuyến mãi (nền tảng bù)', value: formatVnd(report.promotionCost ?? 0), icon: <Gift size={20} />, variant: 'peach' },
+    { title: 'Thưởng Tasker xuất sắc', value: formatVnd(report.taskerBonusCost ?? 0), icon: <Trophy size={20} />, variant: 'lilac' },
+    {
+      title: 'Lợi nhuận nền tảng (hoa hồng − khuyến mãi − thưởng)',
+      value: formatVnd(report.netRevenue ?? report.totalCommission),
+      icon: <TrendingUp size={20} />,
+      variant: 'success',
+    },
   ];
 
   return (
