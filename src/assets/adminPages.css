@@ -609,6 +609,9 @@
   background: var(--primary-50, #E6FAF7); color: var(--primary-700, #0F766E); font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.5px;
 }
+/* Bảng mã giảm giá: cho tên chương trình và mức giảm xuống dòng để cột "Thao tác" không bị tràn ở màn hình 1366–1440 px */
+.admin-table td .promo-wrap { white-space: normal; }
+.promo-table th, .promo-table td { padding-left: 10px; padding-right: 10px; }
 .promo-code-input { text-transform: uppercase; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.5px; }
 .promo-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; }
 .promo-form .form-group { margin-bottom: 12px; }
