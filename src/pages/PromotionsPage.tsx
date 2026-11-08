@@ -307,12 +307,12 @@ export default function PromotionsPage() {
         ) : (
           <div className="card">
             <div className="table-responsive">
-              <table className="admin-table">
+              <table className="admin-table promo-table">
                 <thead>
                   <tr>
                     <th>Mã</th>
-                    <th style={{ minWidth: 200 }}>Chương trình</th>
-                    <th style={{ minWidth: 200 }}>Ưu đãi & điều kiện</th>
+                    <th style={{ minWidth: 150 }}>Chương trình</th>
+                    <th style={{ minWidth: 150 }}>Ưu đãi & điều kiện</th>
                     <th>Thời gian</th>
                     <th style={{ textAlign: 'center' }}>Lượt dùng</th>
                     <th style={{ textAlign: 'right' }}>Đã giảm</th>
@@ -328,14 +328,14 @@ export default function PromotionsPage() {
                       <tr key={v.id}>
                         <td><span className="promo-code">{v.code}</span></td>
                         <td>
-                          <div className="font-medium">{v.name}</div>
+                          <div className="font-medium promo-wrap">{v.name}</div>
                           {v.description && <div className="cell-sub">{v.description}</div>}
                           <div className="cell-sub">
                             {v.isPublic ? 'Hiện trong "Ưu đãi của tôi"' : 'Mã ẩn – chỉ ai biết mã mới dùng'}
                           </div>
                         </td>
                         <td>
-                          <div className="font-medium">{discountText(v.discountType, v.discountValue, v.maxDiscount)}</div>
+                          <div className="font-medium promo-wrap">{discountText(v.discountType, v.discountValue, v.maxDiscount)}</div>
                           <div className="cell-sub">Đơn từ {formatVnd(v.minOrderValue)} · chỉ đơn trả trước</div>
                           <div className="cell-sub">
                             {v.serviceNames.length > 0 ? v.serviceNames.join(', ') : 'Mọi dịch vụ'}
