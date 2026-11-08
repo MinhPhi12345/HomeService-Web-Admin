@@ -709,11 +709,12 @@
 }
 
 .login-brand-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  /* Logo HomeService: nền chuyển màu giống icon ứng dụng */
+  background: linear-gradient(135deg, #22c9b8, #0b8f83);
+  box-shadow: 0 8px 18px rgba(11, 143, 131, 0.28);
   display: inline-flex;
   align-items: center;
   justify-content: center;

@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import BrandMark from '../common/BrandMark';
 import { useAdminCounters, type AdminCounters } from '../../context/useAdminCounters';
 import {
   AlertTriangle,
@@ -7,7 +8,6 @@ import {
   ClipboardList,
   Flame,
   Gift,
-  House,
   Layers,
   LayoutDashboard,
   ShieldCheck,
@@ -56,7 +56,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <div className="sidebar-brand-icon">
-              <House size={19} strokeWidth={2.4} />
+              <BrandMark size={30} />
             </div>
             <div className="sidebar-brand-text">
               <span className="sidebar-brand-title">

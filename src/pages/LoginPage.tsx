@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { AlertCircle, CheckCircle2, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { login } from '../services/authService';
 import { UserRole } from '../types';
 import { getErrorMessage } from '../utils/errorHandler';
+import BrandMark from '../components/common/BrandMark';
 import Button from '../components/common/Button';
 import ForgotPasswordPanel from '../components/auth/ForgotPasswordPanel';
 
@@ -77,7 +78,7 @@ export default function LoginPage() {
       <div className="login-card">
         <div className="login-header">
           <div className="login-brand-icon">
-            <ShieldCheck size={32} />
+            <BrandMark size={44} />
           </div>
           <h1 className="login-title">HomeService Admin</h1>
           <p className="login-subtitle">Hệ thống quản trị dịch vụ tại nhà</p>

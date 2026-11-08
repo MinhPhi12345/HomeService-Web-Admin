@@ -457,7 +457,7 @@
   width: 36px;
   height: 36px;
   border-radius: 11px;
-  background: var(--primary-500);
+  background: linear-gradient(135deg, #22c9b8, #0b8f83);
   color: #fff;
   flex-shrink: 0;
   box-shadow: 0 4px 10px rgba(20, 184, 166, 0.28);
