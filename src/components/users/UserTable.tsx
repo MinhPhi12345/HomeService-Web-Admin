@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom';
 import type { AdminUserItem } from '../../types';
-import { UserRole } from '../../types';
+import { LOCK_REASON_LABELS, UserRole } from '../../types';
 import { formatDate } from '../../utils/formatters';
 import Badge, { type BadgeVariant } from '../common/Badge';
 import EmptyState from '../common/EmptyState';
@@ -15,7 +16,8 @@ interface UserTableProps {
   onPageSizeChange: (size: number) => void;
   currentAdminId?: number;
   isLoading: boolean;
-  onToggleStatus: (user: AdminUserItem) => void;
+  onLock: (user: AdminUserItem) => void;
+  onUnlock: (user: AdminUserItem) => void;
 }
 
 const roleBadgeMeta: Record<number, { label: string; variant: BadgeVariant }> = {
@@ -33,7 +35,8 @@ export default function UserTable({
   onPageSizeChange,
   currentAdminId,
   isLoading,
-  onToggleStatus,
+  onLock,
+  onUnlock,
 }: UserTableProps) {
   const totalPages = Math.ceil(totalRecords / pageSize);
   const pagedUsers = users.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -89,9 +92,22 @@ export default function UserTable({
                     <Badge variant={roleMeta.variant}>{roleMeta.label}</Badge>
                   </td>
                   <td>
-                    <Badge variant={u.isActive ? 'mint' : 'rose'}>
-                      {u.isActive ? 'Hoạt động' : 'Đã khóa'}
-                    </Badge>
+                    <div className="user-status-cell">
+                      <Badge variant={!u.isActive ? 'rose' : u.lockPendingAt ? 'peach' : 'mint'}>
+                        {!u.isActive ? 'Đã khóa' : u.lockPendingAt ? 'Chờ khóa' : 'Hoạt động'}
+                      </Badge>
+                      {(u.lockPendingAt || !u.isActive) && u.lockReason != null && (
+                        <span className="user-lock-reason" title={u.lockDetail ?? ''}>
+                          {LOCK_REASON_LABELS[u.lockReason]}
+                          {u.lockDetail ? `: ${u.lockDetail}` : ''}
+                        </span>
+                      )}
+                      {(u.pendingAppeals ?? 0) > 0 && (
+                        <Link to="/account-appeals" className="appeal-chip">
+                          Có yêu cầu mở khóa
+                        </Link>
+                      )}
+                    </div>
                   </td>
                   <td>{formatDate(u.createdAt)}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -100,10 +116,10 @@ export default function UserTable({
                     ) : (
                       <button
                         type="button"
-                        className={`btn-action-pill ${u.isActive ? 'btn-lock' : 'btn-unlock'}`}
-                        onClick={() => onToggleStatus(u)}
+                        className={`btn-action-pill ${u.isActive && !u.lockPendingAt ? 'btn-lock' : 'btn-unlock'}`}
+                        onClick={() => (u.isActive && !u.lockPendingAt ? onLock(u) : onUnlock(u))}
                       >
-                        {u.isActive ? 'Khóa' : 'Mở khóa'}
+                        {!u.isActive ? 'Mở khóa' : u.lockPendingAt ? 'Hủy chờ khóa' : 'Khóa'}
                       </button>
                     )}
                   </td>

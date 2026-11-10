@@ -1,8 +1,9 @@
 import { useAuth } from '../context/useAuth';
 import { useUserManagement } from '../hooks/useUserManagement';
-import ConfirmDialog from '../components/common/ConfirmDialog';
 import UserFilterTabs from '../components/users/UserFilterTabs';
 import UserTable from '../components/users/UserTable';
+import LockUserDialog from '../components/users/LockUserDialog';
+import UnlockUserDialog from '../components/users/UnlockUserDialog';
 
 export default function UsersPage() {
   const { user: currentAdmin } = useAuth();
@@ -15,13 +16,16 @@ export default function UsersPage() {
     setPage,
     setPageSize,
     isLoading,
-    targetUser,
-    setTargetUser,
+    lockTarget,
+    setLockTarget,
+    unlockTarget,
+    setUnlockTarget,
     isUpdatingStatus,
     isExporting,
     onRoleChange,
     onSearchChange,
-    onConfirmToggleStatus,
+    onConfirmLock,
+    onConfirmUnlock,
     onExportExcel,
   } = useUserManagement();
 
@@ -46,29 +50,28 @@ export default function UsersPage() {
         onPageSizeChange={setPageSize}
         currentAdminId={currentAdmin?.userId}
         isLoading={isLoading}
-        onToggleStatus={(u) => setTargetUser(u)}
+        onLock={(u) => setLockTarget(u)}
+        onUnlock={(u) => setUnlockTarget(u)}
       />
 
       <div className="admin-notice-box">
         <span>
-          ⓘ Tài khoản bị khóa không đăng nhập được; Admin không thể tự khóa chính mình. Khách nợ quá 7 ngày có thể bị khóa.
+          ⓘ Khóa tài khoản phải ghi lý do và người dùng nhận email kèm đường dẫn gửi yêu cầu mở khóa. Người dùng còn đơn đang dở
+          sẽ được khóa sau khi hoàn tất đơn (hoặc chọn khóa ngay). Admin không thể tự khóa chính mình.
         </span>
       </div>
 
-      <ConfirmDialog
-        isOpen={Boolean(targetUser)}
-        title={targetUser?.isActive ? 'Xác nhận khóa tài khoản' : 'Xác nhận mở khóa tài khoản'}
-        message={
-          targetUser?.isActive
-            ? `Bạn có chắc chắn muốn khóa tài khoản "${targetUser.fullName}"? Người dùng này sẽ không thể đăng nhập vào hệ thống.`
-            : `Bạn có chắc chắn muốn mở khóa tài khoản "${targetUser?.fullName}"?`
-        }
-        confirmText={targetUser?.isActive ? 'Khóa' : 'Mở khóa'}
-        cancelText="Hủy"
-        confirmVariant={targetUser?.isActive ? 'danger' : 'primary'}
-        isLoading={isUpdatingStatus}
-        onConfirm={onConfirmToggleStatus}
-        onCancel={() => setTargetUser(null)}
+      <LockUserDialog
+        user={lockTarget}
+        isSubmitting={isUpdatingStatus}
+        onConfirm={onConfirmLock}
+        onCancel={() => setLockTarget(null)}
+      />
+      <UnlockUserDialog
+        user={unlockTarget}
+        isSubmitting={isUpdatingStatus}
+        onConfirm={onConfirmUnlock}
+        onCancel={() => setUnlockTarget(null)}
       />
     </div>
   );

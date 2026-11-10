@@ -6,6 +6,7 @@ export const DisputeReason = {
   PropertyDamage: 2,
   Behavior: 3,
   Other: 4,
+  TaskerLocked: 5,
 } as const;
 export type DisputeReason = (typeof DisputeReason)[keyof typeof DisputeReason];
 
@@ -48,6 +49,24 @@ export interface DisputeResponse {
   taskerId: number;
   redoScheduledTime?: string | null;
   taskerResponseDueAt: string;
+  // SRS v1.8 – hạng mục & ảnh trước/sau theo hạng mục; Tasker đã bị khóa (không giao làm lại được)
+  items?: BookingItemDto[] | null;
+  photos?: BookingPhotoDto[] | null;
+  taskerLocked?: boolean;
+}
+
+export interface BookingItemDto {
+  itemNo: number;
+  description: string;
+}
+
+/** stage: 0 lúc Bắt đầu, 1 lúc Hoàn thành; itemNo null = ảnh chung. */
+export interface BookingPhotoDto {
+  stage: 0 | 1;
+  itemNo?: number | null;
+  url: string;
+  note?: string | null;
+  createdAt: string;
 }
 
 export interface ResolveDisputeRequest {

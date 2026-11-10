@@ -1,5 +1,11 @@
 import apiClient from './api';
-import type { AdminUserItem, PendingTaskerItem } from '../types';
+import type {
+  AdminUserItem,
+  LockAccountRequest,
+  LockPreviewResponse,
+  LockResultResponse,
+  PendingTaskerItem,
+} from '../types';
 import {
   delayMock,
   isMockEnabled,
@@ -55,6 +61,33 @@ export async function setUserActiveStatus(
   await apiClient.put(`/users/${id}/active-status`, null, {
     params: { isActive },
   });
+}
+
+// US30 (SRS v1.8) – khóa có lý do: xem trước đơn đang dở + email, khóa sau khi xong đơn / khóa ngay, mở khóa
+export async function previewLockUser(id: number, payload: LockAccountRequest): Promise<LockPreviewResponse> {
+  const { data } = await apiClient.post<LockPreviewResponse>(`/users/${id}/lock-preview`, payload);
+  return data;
+}
+
+export async function lockUser(id: number, payload: LockAccountRequest): Promise<LockResultResponse> {
+  if (isMockEnabled) {
+    const user = mockAdminUsers.find((u) => u.id === id);
+    if (user) user.isActive = false;
+    await delayMock(null);
+    return { status: 'Locked', activeOrders: 0, actions: [] };
+  }
+  const { data } = await apiClient.post<LockResultResponse>(`/users/${id}/lock`, payload);
+  return data;
+}
+
+export async function unlockUser(id: number, note?: string): Promise<void> {
+  if (isMockEnabled) {
+    const user = mockAdminUsers.find((u) => u.id === id);
+    if (user) user.isActive = true;
+    await delayMock(null);
+    return;
+  }
+  await apiClient.post(`/users/${id}/unlock`, { note: note?.trim() || null });
 }
 
 // EP01 - US04: xác thực hồ sơ Tasker

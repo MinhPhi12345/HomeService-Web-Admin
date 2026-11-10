@@ -2026,3 +2026,38 @@
 
 
 
+
+/* SRS v1.8 – form dịch vụ: số lượng, thời lượng, chi tiết dịch vụ */
+.service-form-section {
+  border-top: 1px dashed var(--border-color, #e3ebe9);
+  padding-top: 14px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.service-form-section-title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-900);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.service-qty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.service-qty-grid .form-group { margin-bottom: 6px; }
+.service-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-muted-bg, #f4f8f7);
+  cursor: pointer;
+}
+.service-check input { margin-top: 3px; accent-color: var(--primary-600, #13b5a5); }
+.service-check span { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--ink-900); }
+.service-check small { color: var(--ink-400); font-size: 12px; line-height: 1.45; }

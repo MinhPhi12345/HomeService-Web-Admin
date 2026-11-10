@@ -38,7 +38,13 @@ export default function ServiceTableRow({
         </div>
       </td>
       <td className="text-primary font-medium">{formatVnd(item.basePrice)}</td>
-      <td>{item.unit}</td>
+      <td>
+        <div>{item.unit}</div>
+        <div className="cell-sub">
+          {item.minQuantity === item.maxQuantity ? `${item.minQuantity}/đơn` : `${item.minQuantity}–${item.maxQuantity}/đơn`}
+          {item.requiresItemList ? ' · theo hạng mục' : ''}
+        </div>
+      </td>
       <td>
         <Badge variant={item.isActive ? 'mint' : 'rose'}>
           {item.isActive ? 'Đang hoạt động' : 'Đã ẩn'}

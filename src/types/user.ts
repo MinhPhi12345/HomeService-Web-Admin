@@ -44,6 +44,62 @@ export interface AdminUserItem {
   ratingAverage?: number | null;
   violationPoints?: number | null;
   suspendedUntil?: string | null;
+  // US30 (SRS v1.8)
+  lockReason?: AccountLockReason | null;
+  lockDetail?: string | null;
+  lockedAt?: string | null;
+  lockPendingAt?: string | null;
+  pendingAppeals?: number;
 }
 
 export type AdminUser = AdminUserItem;
+
+// US30 – lý do khóa tài khoản (gửi/nhận dạng số)
+export const AccountLockReason = {
+  Fraud: 0,
+  NonPayment: 1,
+  RepeatedViolations: 2,
+  CustomerComplaints: 3,
+  Misconduct: 4,
+  Other: 5,
+} as const;
+export type AccountLockReason = (typeof AccountLockReason)[keyof typeof AccountLockReason];
+
+export const LOCK_REASON_LABELS: Record<number, string> = {
+  0: 'Gian lận',
+  1: 'Không thanh toán',
+  2: 'Vi phạm nhiều lần',
+  3: 'Bị phản ánh nhiều lần',
+  4: 'Hành vi không phù hợp',
+  5: 'Khác',
+};
+
+/** 0 = khóa sau khi hoàn tất các đơn đang dở, 1 = khóa ngay. */
+export type AccountLockMode = 0 | 1;
+
+export interface LockAccountRequest {
+  reason: AccountLockReason;
+  detail: string;
+  mode: AccountLockMode;
+}
+
+export interface ActiveOrderItem {
+  bookingId: number;
+  serviceName: string;
+  status: number;
+  scheduledTime: string;
+  paymentMethod: number;
+  immediateAction: string;
+}
+
+export interface LockPreviewResponse {
+  activeOrders: ActiveOrderItem[];
+  emailSubject: string;
+  emailText: string;
+}
+
+export interface LockResultResponse {
+  status: 'Locked' | 'Pending';
+  activeOrders: number;
+  actions: string[];
+}

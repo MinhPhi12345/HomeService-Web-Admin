@@ -3,12 +3,13 @@ import { AdminCountersContext, type AdminCounters } from './useAdminCounters';
 import { getPendingTaskerVerifications } from '../services/userService';
 import { getDisputes } from '../services/disputeService';
 import { getFlaggedReviews } from '../services/reviewService';
+import { getAppeals } from '../services/appealService';
 import { DisputeStatus } from '../types';
 
 const REFRESH_MS = 60_000;
 
 export function AdminCountersProvider({ children }: { children: ReactNode }) {
-  const [counts, setCounts] = useState<AdminCounters>({ pendingTaskers: 0, openDisputes: 0, flaggedReviews: 0 });
+  const [counts, setCounts] = useState<AdminCounters>({ pendingTaskers: 0, openDisputes: 0, flaggedReviews: 0, pendingAppeals: 0 });
   const [loaded, setLoaded] = useState(false);
   const [tick, setTick] = useState(0);
 
@@ -18,12 +19,14 @@ export function AdminCountersProvider({ children }: { children: ReactNode }) {
       getPendingTaskerVerifications(),
       getDisputes(DisputeStatus.Open),
       getFlaggedReviews(),
-    ]).then(([t, d, r]) => {
+      getAppeals(0),
+    ]).then(([t, d, r, a]) => {
       if (ignore) return;
       setCounts((prev) => ({
         pendingTaskers: t.status === 'fulfilled' ? t.value.length : prev.pendingTaskers,
         openDisputes: d.status === 'fulfilled' ? d.value.length : prev.openDisputes,
         flaggedReviews: r.status === 'fulfilled' ? r.value.length : prev.flaggedReviews,
+        pendingAppeals: a.status === 'fulfilled' ? a.value.length : prev.pendingAppeals,
       }));
       setLoaded(true);
     });

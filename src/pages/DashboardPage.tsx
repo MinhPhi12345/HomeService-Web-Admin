@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertTriangle, ArrowRight, Flame, RefreshCw, UserCheck } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Flame, LockOpen, RefreshCw, UserCheck } from 'lucide-react';
 import StatCards from '../components/dashboard/StatCards';
 import DailyRevenueBarChart from '../components/dashboard/DailyRevenueBarChart';
 import OrderStatusProgressList from '../components/dashboard/OrderStatusProgressList';
@@ -38,6 +38,7 @@ export default function DashboardPage() {
     { to: '/tasker-verification', label: 'Hồ sơ Tasker chờ duyệt', count: counts.pendingTaskers, icon: <UserCheck size={18} />, tone: 'sky' },
     { to: '/disputes', label: 'Khiếu nại chờ xử lý', count: counts.openDisputes, icon: <AlertTriangle size={18} />, tone: 'peach' },
     { to: '/flagged-reviews', label: 'Đánh giá bị báo cáo', count: counts.flaggedReviews, icon: <Flame size={18} />, tone: 'rose' },
+    { to: '/account-appeals', label: 'Yêu cầu mở khóa', count: counts.pendingAppeals, icon: <LockOpen size={18} />, tone: 'lilac' },
   ];
 
   return (

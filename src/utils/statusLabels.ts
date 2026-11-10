@@ -57,6 +57,7 @@ export const DISPUTE_REASON_LABELS: Record<DisputeReason, string> = {
   [DisputeReason.PropertyDamage]: 'Làm hư hỏng tài sản',
   [DisputeReason.Behavior]: 'Thái độ không phù hợp',
   [DisputeReason.Other]: 'Khác',
+  [DisputeReason.TaskerLocked]: 'Tasker bị khóa khi đang làm (hệ thống tự mở)',
 };
 
 export const DISPUTE_RESOLUTION_LABELS: Record<DisputeResolution, string> = {
@@ -66,4 +67,4 @@ export const DISPUTE_RESOLUTION_LABELS: Record<DisputeResolution, string> = {
   [DisputeResolution.Redo]: 'Yêu cầu làm lại miễn phí',
 };
 
-export const SERVICE_UNITS = ['giờ', 'lần', 'm²', 'buổi'] as const;
+export const SERVICE_UNITS = ['giờ', 'lần', 'hạng mục', 'mẻ', 'buổi', 'm²'] as const;
