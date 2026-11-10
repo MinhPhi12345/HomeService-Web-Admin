@@ -9,6 +9,7 @@ import {
 } from '../../utils/constants';
 import Button from '../common/Button';
 import ServiceFormFields from './ServiceFormFields';
+import ServiceDetailFields, { type ServiceDetailState } from './ServiceDetailFields';
 import { validateServiceForm, type ServiceFormErrors } from './serviceValidation';
 
 interface ServiceFormPanelProps {
@@ -30,6 +31,18 @@ export default function ServiceFormPanel({
   const [unit, setUnit] = useState(selectedItem?.unit ?? SERVICE_UNITS[0]);
   const [iconUrl, setIconUrl] = useState(selectedItem?.iconUrl ?? '');
   const [errors, setErrors] = useState<ServiceFormErrors>({});
+  const [detail, setDetail] = useState<ServiceDetailState>({
+    minQuantity: String(selectedItem?.minQuantity ?? 1),
+    maxQuantity: String(selectedItem?.maxQuantity ?? 4),
+    quantityLabel: selectedItem?.quantityLabel ?? '',
+    quantityHint: selectedItem?.quantityHint ?? '',
+    minutesPerUnit: String(selectedItem?.minutesPerUnit ?? 60),
+    requiresItemList: selectedItem?.requiresItemList ?? false,
+    includes: selectedItem?.includes ?? '',
+    excludes: selectedItem?.excludes ?? '',
+    customerPrepares: selectedItem?.customerPrepares ?? '',
+    notes: selectedItem?.notes ?? '',
+  });
 
   const isEditing = Boolean(selectedItem);
   const panelTitle = isEditing
@@ -38,7 +51,9 @@ export default function ServiceFormPanel({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const validationErrors = validateServiceForm(name, basePrice, unit);
+    const validationErrors = validateServiceForm(
+      name, basePrice, unit, detail.minQuantity, detail.maxQuantity, detail.minutesPerUnit,
+    );
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) return;
 
@@ -48,6 +63,16 @@ export default function ServiceFormPanel({
       basePrice: Number(basePrice),
       unit,
       iconUrl: iconUrl.trim() || null,
+      minQuantity: Number(detail.minQuantity),
+      maxQuantity: Number(detail.maxQuantity),
+      quantityLabel: detail.quantityLabel.trim(),
+      quantityHint: detail.quantityHint.trim(),
+      minutesPerUnit: Number(detail.minutesPerUnit),
+      requiresItemList: detail.requiresItemList,
+      includes: detail.includes,
+      excludes: detail.excludes,
+      customerPrepares: detail.customerPrepares,
+      notes: detail.notes,
     });
   }
 
@@ -71,6 +96,17 @@ export default function ServiceFormPanel({
           setIconUrl={setIconUrl}
           errors={errors}
           setErrors={setErrors}
+          isSubmitting={isSubmitting}
+        />
+
+        <ServiceDetailFields
+          unit={unit}
+          value={detail}
+          onChange={(patch) => {
+            setDetail((prev) => ({ ...prev, ...patch }));
+            if (errors.quantity || errors.minutes) setErrors((prev) => ({ ...prev, quantity: undefined, minutes: undefined }));
+          }}
+          errors={errors}
           isSubmitting={isSubmitting}
         />
 

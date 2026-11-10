@@ -10,6 +10,7 @@ import Button from '../common/Button';
 import ConfirmDialog from '../common/ConfirmDialog';
 import ErrorState from '../common/ErrorState';
 import PhotoGallery from '../common/PhotoGallery';
+import BookingPhotoCompare from '../common/BookingPhotoCompare';
 import { useToast } from '../common/useToast';
 import {
   BOOKING_STATUS_LABELS,
@@ -97,7 +98,9 @@ export default function DisputeDetailModal({ disputeId, onClose, onResolved }: P
         { value: Resolution.FullRefund, title: DISPUTE_RESOLUTION_LABELS[Resolution.FullRefund], desc: `Hoàn ${formatVnd(dispute.amount)} về phương thức khách đã thanh toán.` },
       );
     }
-    list.push({ value: Resolution.Redo, title: DISPUTE_RESOLUTION_LABELS[Resolution.Redo], desc: 'Tasker quay lại làm lại miễn phí vào thời gian bạn chọn.' });
+    // Tasker đã bị khóa tài khoản thì không thể giao làm lại (US30)
+    if (!dispute.taskerLocked)
+      list.push({ value: Resolution.Redo, title: DISPUTE_RESOLUTION_LABELS[Resolution.Redo], desc: 'Tasker quay lại làm lại miễn phí vào thời gian bạn chọn.' });
     return list;
   }, [dispute, isCash, isUnpaidClaim]);
 
@@ -222,11 +225,17 @@ export default function DisputeDetailModal({ disputeId, onClose, onResolved }: P
             </section>
 
             <section className="detail-section">
-              <h4>Ảnh check-in / check-out của Tasker</h4>
-              <PhotoGallery
-                urls={[dispute.checkInPhotoUrl, dispute.checkOutPhotoUrl]}
-                labels={['Check-in', 'Check-out']}
-                emptyText="Không có ảnh check-in / check-out"
+              <h4>{dispute.items?.length ? 'Hạng mục & ảnh trước / sau của Tasker' : 'Ảnh lúc bắt đầu / hoàn thành của Tasker'}</h4>
+              <BookingPhotoCompare
+                items={dispute.items ?? []}
+                photos={
+                  dispute.photos?.length
+                    ? dispute.photos
+                    : [
+                        ...(dispute.checkInPhotoUrl ? [{ stage: 0 as const, url: dispute.checkInPhotoUrl, createdAt: '' }] : []),
+                        ...(dispute.checkOutPhotoUrl ? [{ stage: 1 as const, url: dispute.checkOutPhotoUrl, createdAt: '' }] : []),
+                      ]
+                }
               />
             </section>
 

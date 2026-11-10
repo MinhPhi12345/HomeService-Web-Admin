@@ -4,6 +4,7 @@ export interface AdminCounters {
   pendingTaskers: number;
   openDisputes: number;
   flaggedReviews: number;
+  pendingAppeals: number;
 }
 
 export interface AdminCountersValue {
@@ -13,7 +14,7 @@ export interface AdminCountersValue {
 }
 
 export const AdminCountersContext = createContext<AdminCountersValue>({
-  counts: { pendingTaskers: 0, openDisputes: 0, flaggedReviews: 0 },
+  counts: { pendingTaskers: 0, openDisputes: 0, flaggedReviews: 0, pendingAppeals: 0 },
   loaded: false,
   refresh: () => {},
 });

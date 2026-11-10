@@ -7,3 +7,4 @@ export * from './dispute';
 export * from './review';
 export * from './report';
 export * from './rewards';
+export * from './appeal';

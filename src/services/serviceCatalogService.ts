@@ -45,6 +45,16 @@ export async function createServiceCategory(
       unit: payload.unit,
       iconUrl: payload.iconUrl ?? null,
       isActive: true,
+      minQuantity: payload.minQuantity,
+      maxQuantity: payload.maxQuantity,
+      quantityLabel: payload.quantityLabel || null,
+      quantityHint: payload.quantityHint || null,
+      minutesPerUnit: payload.minutesPerUnit,
+      requiresItemList: payload.requiresItemList,
+      includes: payload.includes || null,
+      excludes: payload.excludes || null,
+      customerPrepares: payload.customerPrepares || null,
+      notes: payload.notes || null,
     };
     mockServiceCategories.push(newItem);
     return delayMock(newItem);
@@ -71,6 +81,10 @@ export async function updateServiceCategory(
         basePrice: payload.basePrice,
         unit: payload.unit,
         iconUrl: payload.iconUrl ?? null,
+        minQuantity: payload.minQuantity,
+        maxQuantity: payload.maxQuantity,
+        minutesPerUnit: payload.minutesPerUnit,
+        requiresItemList: payload.requiresItemList,
       };
     }
     await delayMock(null);

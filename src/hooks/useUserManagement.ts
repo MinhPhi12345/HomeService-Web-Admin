@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { AdminUserItem } from '../types';
-import { UserRole } from '../types';
-import { getUsers, setUserActiveStatus } from '../services/userService';
+import type { AccountLockMode, AccountLockReason, AdminUserItem } from '../types';
+import { LOCK_REASON_LABELS, UserRole } from '../types';
+import { getUsers, lockUser, unlockUser } from '../services/userService';
+import { getErrorMessage } from '../utils/errorHandler';
 import { useToast } from '../components/common/useToast';
 import { exportToExcel } from '../utils/excelExport';
 import { formatDate } from '../utils/formatters';
@@ -20,7 +21,8 @@ export function useUserManagement() {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [targetUser, setTargetUser] = useState<AdminUserItem | null>(null);
+  const [lockTarget, setLockTarget] = useState<AdminUserItem | null>(null);
+  const [unlockTarget, setUnlockTarget] = useState<AdminUserItem | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [reloadTrigger, setReloadTrigger] = useState<number>(0);
@@ -64,21 +66,39 @@ export function useUserManagement() {
     setPage(1);
   };
 
-  const handleConfirmToggleStatus = async () => {
-    if (!targetUser) return;
+  const handleConfirmLock = async (reason: AccountLockReason, detail: string, mode: AccountLockMode) => {
+    if (!lockTarget) return;
     setIsUpdatingStatus(true);
     try {
-      const nextStatus = !targetUser.isActive;
-      await setUserActiveStatus(targetUser.id, nextStatus);
+      const result = await lockUser(lockTarget.id, { reason, detail, mode });
       toast.success(
-        nextStatus
-          ? `Đã mở khóa tài khoản "${targetUser.fullName}".`
-          : `Đã khóa tài khoản "${targetUser.fullName}".`,
+        result.status === 'Pending'
+          ? `"${lockTarget.fullName}" sẽ bị khóa sau khi ${result.activeOrders} đơn đang dở kết thúc.`
+          : `Đã khóa tài khoản "${lockTarget.fullName}" và gửi email thông báo.`,
       );
-      setTargetUser(null);
+      setLockTarget(null);
       setReloadTrigger((prev) => prev + 1);
-    } catch {
-      toast.error('Thao tác đổi trạng thái tài khoản thất bại.');
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Khóa tài khoản thất bại.');
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleConfirmUnlock = async (note: string) => {
+    if (!unlockTarget) return;
+    setIsUpdatingStatus(true);
+    try {
+      await unlockUser(unlockTarget.id, note);
+      toast.success(
+        unlockTarget.isActive
+          ? `Đã hủy lệnh chờ khóa của "${unlockTarget.fullName}".`
+          : `Đã mở khóa tài khoản "${unlockTarget.fullName}".`,
+      );
+      setUnlockTarget(null);
+      setReloadTrigger((prev) => prev + 1);
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Mở khóa tài khoản thất bại.');
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -109,7 +129,14 @@ export function useUserManagement() {
             header: 'Trạng thái',
             key: 'isActive',
             width: 16,
-            getValue: (u) => (u.isActive ? 'Hoạt động' : 'Đã khóa'),
+            getValue: (u) => (!u.isActive ? 'Đã khóa' : u.lockPendingAt ? 'Chờ khóa' : 'Hoạt động'),
+          },
+          {
+            header: 'Lý do khóa',
+            key: 'lockReason',
+            width: 36,
+            getValue: (u) =>
+              u.lockReason != null ? `${LOCK_REASON_LABELS[u.lockReason]}${u.lockDetail ? `: ${u.lockDetail}` : ''}` : '',
           },
           {
             header: 'Ngày tạo',
@@ -137,13 +164,16 @@ export function useUserManagement() {
     setPage,
     setPageSize,
     isLoading,
-    targetUser,
-    setTargetUser,
+    lockTarget,
+    setLockTarget,
+    unlockTarget,
+    setUnlockTarget,
     isUpdatingStatus,
     isExporting,
     onRoleChange: handleRoleChange,
     onSearchChange: handleSearchChange,
-    onConfirmToggleStatus: handleConfirmToggleStatus,
+    onConfirmLock: handleConfirmLock,
+    onConfirmUnlock: handleConfirmUnlock,
     onExportExcel: handleExportExcel,
   };
 }

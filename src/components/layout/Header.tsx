@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Bell, Flame, KeyRound, LogOut, Menu, UserCheck } from 'lucide-react';
+import { AlertTriangle, Bell, Flame, KeyRound, LockOpen, LogOut, Menu, UserCheck } from 'lucide-react';
 import { useAdminCounters } from '../../context/useAdminCounters';
 import { useAuth } from '../../context/useAuth';
 import { logoutApi } from '../../services/authService';
@@ -36,6 +36,10 @@ function buildPageMeta(path: string, counts: Counts, loaded: boolean): PageMeta 
       title: 'Đánh giá bị báo cáo',
       subtitle: n(counts.flaggedReviews, 'đánh giá chờ kiểm duyệt', 'Không có đánh giá nào bị báo cáo'),
     },
+    '/account-appeals': {
+      title: 'Yêu cầu mở khóa',
+      subtitle: n(counts.pendingAppeals, 'yêu cầu mở khóa chờ xử lý', 'Không có yêu cầu mở khóa nào đang chờ'),
+    },
     '/tasker-awards': { title: 'Tasker xuất sắc tháng', subtitle: 'Chốt bảng xếp hạng, duyệt và trao thưởng, mời nhận quà, xuất Excel' },
     '/promotions': { title: 'Khuyến mãi', subtitle: 'Mã giảm giá cho khách hàng, quà tặng tự động và chi phí khuyến mãi' },
     '/revenue-report': { title: 'Báo cáo doanh thu', subtitle: 'Doanh thu, hoa hồng, tiền tạm giữ và hoàn tiền theo khoảng ngày' },
@@ -58,7 +62,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
   const [isBellOpen, setIsBellOpen] = useState(false);
   const bellRef = useRef<HTMLDivElement>(null);
   const meta = buildPageMeta(location.pathname, counts, loaded);
-  const totalTodo = counts.pendingTaskers + counts.openDisputes + counts.flaggedReviews;
+  const totalTodo = counts.pendingTaskers + counts.openDisputes + counts.flaggedReviews + counts.pendingAppeals;
 
   const nameParts = (user?.fullName ?? 'Admin').trim().split(/\s+/);
   // Chữ viết tắt: chữ đầu của từ đầu + từ cuối ("Quản trị viên" → QV, "Đặng Hoàng Minh Phi" → ĐP)
@@ -80,6 +84,7 @@ export default function Header({ onToggleSidebar }: HeaderProps) {
     { to: '/tasker-verification', label: 'Hồ sơ Tasker chờ duyệt', count: counts.pendingTaskers, icon: <UserCheck size={16} /> },
     { to: '/disputes', label: 'Khiếu nại chờ xử lý', count: counts.openDisputes, icon: <AlertTriangle size={16} /> },
     { to: '/flagged-reviews', label: 'Đánh giá bị báo cáo', count: counts.flaggedReviews, icon: <Flame size={16} /> },
+    { to: '/account-appeals', label: 'Yêu cầu mở khóa', count: counts.pendingAppeals, icon: <LockOpen size={16} /> },
   ];
 
   async function handleConfirmLogout() {

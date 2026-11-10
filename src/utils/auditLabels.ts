@@ -22,6 +22,13 @@ export const AUDIT_ACTION_LABELS: Record<string, { label: string; variant: Badge
   VoucherCreated: { label: 'Tạo mã giảm giá', variant: 'lilac' },
   VoucherUpdated: { label: 'Sửa / dừng mã giảm giá', variant: 'peach' },
   GiftRuleUpdated: { label: 'Đổi cài đặt quà tặng', variant: 'info' },
+  AccountLocked: { label: 'Khóa tài khoản', variant: 'danger' },
+  AccountLockScheduled: { label: 'Chờ khóa tài khoản', variant: 'warning' },
+  AccountLockCancelled: { label: 'Hủy lệnh chờ khóa', variant: 'neutral' },
+  AccountUnlocked: { label: 'Mở khóa tài khoản', variant: 'success' },
+  AppealSubmitted: { label: 'Gửi yêu cầu mở khóa', variant: 'sky' },
+  AppealApproved: { label: 'Chấp nhận yêu cầu mở khóa', variant: 'mint' },
+  AppealRejected: { label: 'Từ chối yêu cầu mở khóa', variant: 'rose' },
 };
 
 export function auditActionMeta(action: string) {
